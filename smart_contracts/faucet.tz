@@ -1,0 +1,51 @@
+parameter (or (unit %default) (nat %drip));
+storage   (pair (nat %maxTokensPerDrip) (pair (big_map %metadata string bytes) (address %tokenContractAddress)));
+code
+  {
+    UNPAIR;     # @parameter : @storage
+    IF_LEFT
+      {
+        DROP;       # @storage
+        # == default == # @storage
+        NIL operation; # list operation : @storage
+      }
+      {
+        SWAP;       # @storage : @parameter%drip
+        # == drip ==
+        # sp.verify(params.numberOfTokens <= self.data.maxTokensPerDrip, message = 'TOO_MANY_TOKENS') # @storage : @parameter%drip
+        DUP;        # @storage : @storage : @parameter%drip
+        DUG 2;      # @storage : @parameter%drip : @storage
+        CAR;        # nat : @parameter%drip : @storage
+        SWAP;       # @parameter%drip : nat : @storage
+        DUP;        # @parameter%drip : @parameter%drip : nat : @storage
+        DUG 2;      # @parameter%drip : nat : @parameter%drip : @storage
+        COMPARE;    # int : @parameter%drip : @storage
+        LE;         # bool : @parameter%drip : @storage
+        IF
+          {}
+          {
+            PUSH string "TOO_MANY_TOKENS"; # string : @parameter%drip : @storage
+            FAILWITH;   # FAILED
+          }; # @parameter%drip : @storage
+        # sp.transfer(sp.record(from_ = sp.self_address, to_ = sp.sender, value = params.numberOfTokens), sp.tez(0), sp.contract(sp.TRecord(from_ = sp.TAddress, to_ = sp.TAddress, value = sp.TNat).layout(("from_ as from", ("to_ as to", "value"))), self.data.tokenContractAddress, entry_point='transfer').open_some()) # @parameter%drip : @storage
+        NIL operation; # list operation : @parameter%drip : @storage
+        DUP 3;      # @storage : list operation : @parameter%drip : @storage
+        GET 4;      # address : list operation : @parameter%drip : @storage
+        CONTRACT %transfer (pair (address %from) (pair (address %to) (nat %value))); # option (contract (pair (address %from) (pair (address %to) (nat %value)))) : list operation : @parameter%drip : @storage
+        IF_SOME
+          {}
+          {
+            PUSH int 53; # int : list operation : @parameter%drip : @storage
+            FAILWITH;   # FAILED
+          }; # @some : list operation : @parameter%drip : @storage
+        PUSH mutez 0; # mutez : @some : list operation : @parameter%drip : @storage
+        DIG 3;      # @parameter%drip : mutez : @some : list operation : @storage
+        SENDER;     # address : @parameter%drip : mutez : @some : list operation : @storage
+        PAIR %to %value; # pair (address %to) (@parameter%drip %value) : mutez : @some : list operation : @storage
+        SELF_ADDRESS; # address : pair (address %to) (@parameter%drip %value) : mutez : @some : list operation : @storage
+        PAIR %from; # pair (address %from) (pair (address %to) (@parameter%drip %value)) : mutez : @some : list operation : @storage
+        TRANSFER_TOKENS; # operation : list operation : @storage
+        CONS;       # list operation : @storage
+      }; # list operation : @storage
+    PAIR;       # pair (list operation) @storage
+  };

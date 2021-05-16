@@ -1,0 +1,487 @@
+parameter (or (or (or (pair %propose (nat %escrowAmount) (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation)))))) (pair %rescueFA12 (address %tokenContractAddress) (pair (nat %amount) (address %destination)))) (or (pair %rescueFA2 (address %tokenContractAddress) (pair (nat %tokenId) (pair (nat %amount) (address %destination)))) (address %rescueXTZ))) (or (or (address %rotateOwner) (address %setDaoContractAddress)) (or (address %setGovernorContract) (or (nat %vote) (nat %withdraw)))));
+storage   (pair (pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress))));
+code
+  {
+    UNPAIR;     # @parameter : @storage
+    IF_LEFT
+      {
+        IF_LEFT
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%propose
+                # == propose ==
+                # sp.verify(sp.sender == self.data.owner, message = 'Not owner') # @storage : @parameter%propose
+                DUP;        # @storage : @storage : @parameter%propose
+                DUG 2;      # @storage : @parameter%propose : @storage
+                CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%propose : @storage
+                CAR;        # pair (address %governorAddress) (address %owner) : @parameter%propose : @storage
+                CDR;        # address : @parameter%propose : @storage
+                SENDER;     # address : address : @parameter%propose : @storage
+                COMPARE;    # int : @parameter%propose : @storage
+                EQ;         # bool : @parameter%propose : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "Not owner"; # string : @parameter%propose : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%propose : @storage
+                # sp.transfer(sp.record(spender = self.data.daoContractAddress, value = 0), sp.tez(0), sp.contract(sp.TRecord(spender = sp.TAddress, value = sp.TNat).layout(("spender", "value")), self.data.tokenContractAddress, entry_point='approve').open_some()) # @parameter%propose : @storage
+                NIL operation; # list operation : @parameter%propose : @storage
+                DUP 3;      # @storage : list operation : @parameter%propose : @storage
+                GET 6;      # address : list operation : @parameter%propose : @storage
+                CONTRACT %approve (pair (address %spender) (nat %value)); # option (contract (pair (address %spender) (nat %value))) : list operation : @parameter%propose : @storage
+                IF_SOME
+                  {}
+                  {
+                    PUSH int 243; # int : list operation : @parameter%propose : @storage
+                    FAILWITH;   # FAILED
+                  }; # @some : list operation : @parameter%propose : @storage
+                PUSH mutez 0; # mutez : @some : list operation : @parameter%propose : @storage
+                PUSH nat 0; # nat : mutez : @some : list operation : @parameter%propose : @storage
+                DUP 6;      # @storage : nat : mutez : @some : list operation : @parameter%propose : @storage
+                CAR;        # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : nat : mutez : @some : list operation : @parameter%propose : @storage
+                CDR;        # pair (nat %amountWithdrawn) (address %daoContractAddress) : nat : mutez : @some : list operation : @parameter%propose : @storage
+                CDR;        # address : nat : mutez : @some : list operation : @parameter%propose : @storage
+                PAIR %spender %value; # pair (address %spender) (nat %value) : mutez : @some : list operation : @parameter%propose : @storage
+                TRANSFER_TOKENS; # operation : list operation : @parameter%propose : @storage
+                CONS;       # list operation : @parameter%propose : @storage
+                # sp.transfer(sp.record(spender = self.data.daoContractAddress, value = params.escrowAmount), sp.tez(0), sp.contract(sp.TRecord(spender = sp.TAddress, value = sp.TNat).layout(("spender", "value")), self.data.tokenContractAddress, entry_point='approve').open_some()) # list operation : @parameter%propose : @storage
+                DUP 3;      # @storage : list operation : @parameter%propose : @storage
+                GET 6;      # address : list operation : @parameter%propose : @storage
+                CONTRACT %approve (pair (address %spender) (nat %value)); # option (contract (pair (address %spender) (nat %value))) : list operation : @parameter%propose : @storage
+                IF_SOME
+                  {}
+                  {
+                    PUSH int 243; # int : list operation : @parameter%propose : @storage
+                    FAILWITH;   # FAILED
+                  }; # @some : list operation : @parameter%propose : @storage
+                PUSH mutez 0; # mutez : @some : list operation : @parameter%propose : @storage
+                DUP 4;      # @parameter%propose : mutez : @some : list operation : @parameter%propose : @storage
+                CAR;        # nat : mutez : @some : list operation : @parameter%propose : @storage
+                DUP 6;      # @storage : nat : mutez : @some : list operation : @parameter%propose : @storage
+                CAR;        # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : nat : mutez : @some : list operation : @parameter%propose : @storage
+                CDR;        # pair (nat %amountWithdrawn) (address %daoContractAddress) : nat : mutez : @some : list operation : @parameter%propose : @storage
+                CDR;        # address : nat : mutez : @some : list operation : @parameter%propose : @storage
+                PAIR %spender %value; # pair (address %spender) (nat %value) : mutez : @some : list operation : @parameter%propose : @storage
+                TRANSFER_TOKENS; # operation : list operation : @parameter%propose : @storage
+                CONS;       # list operation : @parameter%propose : @storage
+                # sp.transfer(params.proposal, sp.tez(0), sp.contract(sp.TRecord(descriptionHash = sp.TString, descriptionLink = sp.TString, proposalLambda = sp.TLambda(sp.TUnit, sp.TList(sp.TOperation)), title = sp.TString).layout(("title", ("descriptionLink", ("descriptionHash", "proposalLambda")))), self.data.daoContractAddress, entry_point='propose').open_some()) # list operation : @parameter%propose : @storage
+                DUP 3;      # @storage : list operation : @parameter%propose : @storage
+                CAR;        # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : list operation : @parameter%propose : @storage
+                CDR;        # pair (nat %amountWithdrawn) (address %daoContractAddress) : list operation : @parameter%propose : @storage
+                CDR;        # address : list operation : @parameter%propose : @storage
+                CONTRACT %propose (pair (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))); # option (contract (pair (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation)))))) : list operation : @parameter%propose : @storage
+                IF_SOME
+                  {}
+                  {
+                    PUSH int 262; # int : list operation : @parameter%propose : @storage
+                    FAILWITH;   # FAILED
+                  }; # @some : list operation : @parameter%propose : @storage
+                PUSH mutez 0; # mutez : @some : list operation : @parameter%propose : @storage
+                DIG 3;      # @parameter%propose : mutez : @some : list operation : @storage
+                CDR;        # pair (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation)))) : mutez : @some : list operation : @storage
+                TRANSFER_TOKENS; # operation : list operation : @storage
+                CONS;       # list operation : @storage
+              }
+              {
+                SWAP;       # @storage : @parameter%rescueFA12
+                # == rescueFA12 ==
+                # sp.verify(sp.sender == self.data.owner, message = 'Not owner') # @storage : @parameter%rescueFA12
+                DUP;        # @storage : @storage : @parameter%rescueFA12
+                DUG 2;      # @storage : @parameter%rescueFA12 : @storage
+                CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%rescueFA12 : @storage
+                CAR;        # pair (address %governorAddress) (address %owner) : @parameter%rescueFA12 : @storage
+                CDR;        # address : @parameter%rescueFA12 : @storage
+                SENDER;     # address : address : @parameter%rescueFA12 : @storage
+                COMPARE;    # int : @parameter%rescueFA12 : @storage
+                EQ;         # bool : @parameter%rescueFA12 : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "Not owner"; # string : @parameter%rescueFA12 : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rescueFA12 : @storage
+                SWAP;       # @storage : @parameter%rescueFA12
+                # sp.verify(params.tokenContractAddress != self.data.tokenContractAddress, message = 'USE_WITHDRAW_INSTEAD') # @storage : @parameter%rescueFA12
+                DUP;        # @storage : @storage : @parameter%rescueFA12
+                DUG 2;      # @storage : @parameter%rescueFA12 : @storage
+                GET 6;      # address : @parameter%rescueFA12 : @storage
+                SWAP;       # @parameter%rescueFA12 : address : @storage
+                DUP;        # @parameter%rescueFA12 : @parameter%rescueFA12 : address : @storage
+                DUG 2;      # @parameter%rescueFA12 : address : @parameter%rescueFA12 : @storage
+                CAR;        # address : address : @parameter%rescueFA12 : @storage
+                COMPARE;    # int : @parameter%rescueFA12 : @storage
+                NEQ;        # bool : @parameter%rescueFA12 : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "USE_WITHDRAW_INSTEAD"; # string : @parameter%rescueFA12 : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rescueFA12 : @storage
+                # sp.transfer(sp.record(from_ = sp.self_address, to_ = params.destination, value = params.amount), sp.tez(0), sp.contract(sp.TRecord(from_ = sp.TAddress, to_ = sp.TAddress, value = sp.TNat).layout(("from_ as from", ("to_ as to", "value"))), params.tokenContractAddress, entry_point='transfer').open_some()) # @parameter%rescueFA12 : @storage
+                DUP;        # @parameter%rescueFA12 : @parameter%rescueFA12 : @storage
+                CAR;        # address : @parameter%rescueFA12 : @storage
+                CONTRACT %transfer (pair (address %from) (pair (address %to) (nat %value))); # option (contract (pair (address %from) (pair (address %to) (nat %value)))) : @parameter%rescueFA12 : @storage
+                IF_SOME
+                  {}
+                  {
+                    PUSH int 123; # int : @parameter%rescueFA12 : @storage
+                    FAILWITH;   # FAILED
+                  }; # @some : @parameter%rescueFA12 : @storage
+                NIL operation; # list operation : @some : @parameter%rescueFA12 : @storage
+                SWAP;       # @some : list operation : @parameter%rescueFA12 : @storage
+                PUSH mutez 0; # mutez : @some : list operation : @parameter%rescueFA12 : @storage
+                DIG 3;      # @parameter%rescueFA12 : mutez : @some : list operation : @storage
+                DUP;        # @parameter%rescueFA12 : @parameter%rescueFA12 : mutez : @some : list operation : @storage
+                GET 3;      # nat : @parameter%rescueFA12 : mutez : @some : list operation : @storage
+                SWAP;       # @parameter%rescueFA12 : nat : mutez : @some : list operation : @storage
+                GET 4;      # address : nat : mutez : @some : list operation : @storage
+                PAIR %to %value; # pair (address %to) (nat %value) : mutez : @some : list operation : @storage
+                SELF_ADDRESS; # address : pair (address %to) (nat %value) : mutez : @some : list operation : @storage
+                PAIR %from; # pair (address %from) (pair (address %to) (nat %value)) : mutez : @some : list operation : @storage
+                TRANSFER_TOKENS; # operation : list operation : @storage
+                CONS;       # list operation : @storage
+              }; # list operation : @storage
+          }
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%rescueFA2
+                # == rescueFA2 ==
+                # sp.verify(sp.sender == self.data.owner, message = 'Not owner') # @storage : @parameter%rescueFA2
+                DUP;        # @storage : @storage : @parameter%rescueFA2
+                DUG 2;      # @storage : @parameter%rescueFA2 : @storage
+                CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%rescueFA2 : @storage
+                CAR;        # pair (address %governorAddress) (address %owner) : @parameter%rescueFA2 : @storage
+                CDR;        # address : @parameter%rescueFA2 : @storage
+                SENDER;     # address : address : @parameter%rescueFA2 : @storage
+                COMPARE;    # int : @parameter%rescueFA2 : @storage
+                EQ;         # bool : @parameter%rescueFA2 : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "Not owner"; # string : @parameter%rescueFA2 : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rescueFA2 : @storage
+                SWAP;       # @storage : @parameter%rescueFA2
+                # sp.verify(params.tokenContractAddress != self.data.tokenContractAddress, message = 'USE_WITHDRAW_INSTEAD') # @storage : @parameter%rescueFA2
+                DUP;        # @storage : @storage : @parameter%rescueFA2
+                DUG 2;      # @storage : @parameter%rescueFA2 : @storage
+                GET 6;      # address : @parameter%rescueFA2 : @storage
+                SWAP;       # @parameter%rescueFA2 : address : @storage
+                DUP;        # @parameter%rescueFA2 : @parameter%rescueFA2 : address : @storage
+                DUG 2;      # @parameter%rescueFA2 : address : @parameter%rescueFA2 : @storage
+                CAR;        # address : address : @parameter%rescueFA2 : @storage
+                COMPARE;    # int : @parameter%rescueFA2 : @storage
+                NEQ;        # bool : @parameter%rescueFA2 : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "USE_WITHDRAW_INSTEAD"; # string : @parameter%rescueFA2 : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rescueFA2 : @storage
+                # sp.transfer(sp.list([sp.record(from_ = sp.self_address, txs = sp.list([sp.record(to_ = params.destination, token_id = params.tokenId, amount = params.amount)]))]), sp.tez(0), sp.contract(sp.TList(sp.TRecord(from_ = sp.TAddress, txs = sp.TList(sp.TRecord(amount = sp.TNat, to_ = sp.TAddress, token_id = sp.TNat).layout(("to_", ("token_id", "amount"))))).layout(("from_", "txs"))), params.tokenContractAddress, entry_point='transfer').open_some()) # @parameter%rescueFA2 : @storage
+                DUP;        # @parameter%rescueFA2 : @parameter%rescueFA2 : @storage
+                CAR;        # address : @parameter%rescueFA2 : @storage
+                CONTRACT %transfer (list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount)))))); # option (contract (list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))))) : @parameter%rescueFA2 : @storage
+                IF_SOME
+                  {}
+                  {
+                    PUSH int 153; # int : @parameter%rescueFA2 : @storage
+                    FAILWITH;   # FAILED
+                  }; # @some : @parameter%rescueFA2 : @storage
+                NIL operation; # list operation : @some : @parameter%rescueFA2 : @storage
+                SWAP;       # @some : list operation : @parameter%rescueFA2 : @storage
+                PUSH mutez 0; # mutez : @some : list operation : @parameter%rescueFA2 : @storage
+                NIL (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))); # list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @parameter%rescueFA2 : @storage
+                NIL (pair (address %to_) (pair (nat %token_id) (nat %amount))); # list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @parameter%rescueFA2 : @storage
+                DIG 5;      # @parameter%rescueFA2 : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                DUP;        # @parameter%rescueFA2 : @parameter%rescueFA2 : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                GET 5;      # nat : @parameter%rescueFA2 : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                SWAP;       # @parameter%rescueFA2 : nat : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                DUP;        # @parameter%rescueFA2 : @parameter%rescueFA2 : nat : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                DUG 7;      # @parameter%rescueFA2 : nat : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @parameter%rescueFA2 : @storage
+                GET 3;      # nat : nat : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @parameter%rescueFA2 : @storage
+                PAIR %token_id %amount; # pair (nat %token_id) (nat %amount) : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @parameter%rescueFA2 : @storage
+                DIG 6;      # @parameter%rescueFA2 : pair (nat %token_id) (nat %amount) : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                GET 6;      # address : pair (nat %token_id) (nat %amount) : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                PAIR %to_;  # pair (address %to_) (pair (nat %token_id) (nat %amount)) : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                CONS;       # list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                SELF_ADDRESS; # address : list (pair (address %to_) (pair (nat %token_id) (nat %amount))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                PAIR %from_ %txs; # pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount)))) : list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                CONS;       # list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))) : mutez : @some : list operation : @storage
+                TRANSFER_TOKENS; # operation : list operation : @storage
+                CONS;       # list operation : @storage
+              }
+              {
+                SWAP;       # @storage : @parameter%rescueXTZ
+                # == rescueXTZ ==
+                # sp.verify(sp.sender == self.data.owner, message = 'NOT_OWNER') # @storage : @parameter%rescueXTZ
+                DUP;        # @storage : @storage : @parameter%rescueXTZ
+                DUG 2;      # @storage : @parameter%rescueXTZ : @storage
+                CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%rescueXTZ : @storage
+                CAR;        # pair (address %governorAddress) (address %owner) : @parameter%rescueXTZ : @storage
+                CDR;        # address : @parameter%rescueXTZ : @storage
+                SENDER;     # address : address : @parameter%rescueXTZ : @storage
+                COMPARE;    # int : @parameter%rescueXTZ : @storage
+                EQ;         # bool : @parameter%rescueXTZ : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "NOT_OWNER"; # string : @parameter%rescueXTZ : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rescueXTZ : @storage
+                # sp.send(params.destinationAddress, sp.balance) # @parameter%rescueXTZ : @storage
+                CONTRACT unit; # option (contract unit) : @storage
+                IF_SOME
+                  {}
+                  {
+                    PUSH int 105; # int : @storage
+                    FAILWITH;   # FAILED
+                  }; # @some : @storage
+                NIL operation; # list operation : @some : @storage
+                SWAP;       # @some : list operation : @storage
+                BALANCE;    # mutez : @some : list operation : @storage
+                UNIT;       # unit : mutez : @some : list operation : @storage
+                TRANSFER_TOKENS; # operation : list operation : @storage
+                CONS;       # list operation : @storage
+              }; # list operation : @storage
+          }; # list operation : @storage
+      }
+      {
+        IF_LEFT
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%rotateOwner
+                # == rotateOwner ==
+                # sp.verify(sp.sender == self.data.governorAddress, message = 'NOT_GOVERNOR') # @storage : @parameter%rotateOwner
+                DUP;        # @storage : @storage : @parameter%rotateOwner
+                DUG 2;      # @storage : @parameter%rotateOwner : @storage
+                CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%rotateOwner : @storage
+                CAR;        # pair (address %governorAddress) (address %owner) : @parameter%rotateOwner : @storage
+                CAR;        # address : @parameter%rotateOwner : @storage
+                SENDER;     # address : address : @parameter%rotateOwner : @storage
+                COMPARE;    # int : @parameter%rotateOwner : @storage
+                EQ;         # bool : @parameter%rotateOwner : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "NOT_GOVERNOR"; # string : @parameter%rotateOwner : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rotateOwner : @storage
+                SWAP;       # @storage : @parameter%rotateOwner
+                # self.data.owner = params.newOwner # @storage : @parameter%rotateOwner
+                UNPAIR;     # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%rotateOwner
+                SWAP;       # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : @parameter%rotateOwner
+                UNPAIR;     # pair (address %governorAddress) (address %owner) : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : @parameter%rotateOwner
+                CAR;        # address : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : @parameter%rotateOwner
+                DIG 3;      # @parameter%rotateOwner : address : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))
+                SWAP;       # address : @parameter%rotateOwner : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))
+                PAIR;       # pair address @parameter%rotateOwner : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))
+                PAIR;       # pair (pair address @parameter%rotateOwner) (pair (nat %startBlock) (address %tokenContractAddress)) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))
+                SWAP;       # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : pair (pair address @parameter%rotateOwner) (pair (nat %startBlock) (address %tokenContractAddress))
+                PAIR;       # pair (pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))) (pair (pair address @parameter%rotateOwner) (pair (nat %startBlock) (address %tokenContractAddress)))
+              }
+              {
+                SWAP;       # @storage : @parameter%setDaoContractAddress
+                # == setDaoContractAddress ==
+                # sp.verify(sp.sender == self.data.governorAddress, message = 'NOT_GOVERNOR') # @storage : @parameter%setDaoContractAddress
+                DUP;        # @storage : @storage : @parameter%setDaoContractAddress
+                DUG 2;      # @storage : @parameter%setDaoContractAddress : @storage
+                CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%setDaoContractAddress : @storage
+                CAR;        # pair (address %governorAddress) (address %owner) : @parameter%setDaoContractAddress : @storage
+                CAR;        # address : @parameter%setDaoContractAddress : @storage
+                SENDER;     # address : address : @parameter%setDaoContractAddress : @storage
+                COMPARE;    # int : @parameter%setDaoContractAddress : @storage
+                EQ;         # bool : @parameter%setDaoContractAddress : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "NOT_GOVERNOR"; # string : @parameter%setDaoContractAddress : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%setDaoContractAddress : @storage
+                SWAP;       # @storage : @parameter%setDaoContractAddress
+                # self.data.daoContractAddress = params.newDaoContractAddress # @storage : @parameter%setDaoContractAddress
+                UNPAIR;     # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%setDaoContractAddress
+                UNPAIR;     # nat : pair (nat %amountWithdrawn) (address %daoContractAddress) : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%setDaoContractAddress
+                SWAP;       # pair (nat %amountWithdrawn) (address %daoContractAddress) : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%setDaoContractAddress
+                CAR;        # nat : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%setDaoContractAddress
+                DIG 3;      # @parameter%setDaoContractAddress : nat : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress))
+                SWAP;       # nat : @parameter%setDaoContractAddress : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress))
+                PAIR;       # pair nat @parameter%setDaoContractAddress : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress))
+                SWAP;       # nat : pair nat @parameter%setDaoContractAddress : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress))
+                PAIR;       # pair nat (pair nat @parameter%setDaoContractAddress) : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress))
+                PAIR;       # pair (pair nat (pair nat @parameter%setDaoContractAddress)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+              }; # pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+            NIL operation; # list operation : pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+          }
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%setGovernorContract
+                # == setGovernorContract ==
+                # sp.verify(sp.sender == self.data.governorAddress, message = 'NOT_GOVERNOR') # @storage : @parameter%setGovernorContract
+                DUP;        # @storage : @storage : @parameter%setGovernorContract
+                DUG 2;      # @storage : @parameter%setGovernorContract : @storage
+                CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%setGovernorContract : @storage
+                CAR;        # pair (address %governorAddress) (address %owner) : @parameter%setGovernorContract : @storage
+                CAR;        # address : @parameter%setGovernorContract : @storage
+                SENDER;     # address : address : @parameter%setGovernorContract : @storage
+                COMPARE;    # int : @parameter%setGovernorContract : @storage
+                EQ;         # bool : @parameter%setGovernorContract : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "NOT_GOVERNOR"; # string : @parameter%setGovernorContract : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%setGovernorContract : @storage
+                SWAP;       # @storage : @parameter%setGovernorContract
+                # self.data.governorAddress = params # @storage : @parameter%setGovernorContract
+                UNPAIR;     # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%setGovernorContract
+                SWAP;       # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : @parameter%setGovernorContract
+                UNPAIR;     # pair (address %governorAddress) (address %owner) : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : @parameter%setGovernorContract
+                CDR;        # address : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : @parameter%setGovernorContract
+                DIG 3;      # @parameter%setGovernorContract : address : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))
+                PAIR;       # pair @parameter%setGovernorContract address : pair (nat %startBlock) (address %tokenContractAddress) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))
+                PAIR;       # pair (pair @parameter%setGovernorContract address) (pair (nat %startBlock) (address %tokenContractAddress)) : pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))
+                SWAP;       # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : pair (pair @parameter%setGovernorContract address) (pair (nat %startBlock) (address %tokenContractAddress))
+                PAIR;       # pair (pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))) (pair (pair @parameter%setGovernorContract address) (pair (nat %startBlock) (address %tokenContractAddress)))
+                NIL operation; # list operation : pair (pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress))) (pair (pair @parameter%setGovernorContract address) (pair (nat %startBlock) (address %tokenContractAddress)))
+              }
+              {
+                IF_LEFT
+                  {
+                    SWAP;       # @storage : @parameter%vote
+                    # == vote ==
+                    # sp.verify(sp.sender == self.data.owner, message = 'NOT_GOVERNOR') # @storage : @parameter%vote
+                    DUP;        # @storage : @storage : @parameter%vote
+                    DUG 2;      # @storage : @parameter%vote : @storage
+                    CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%vote : @storage
+                    CAR;        # pair (address %governorAddress) (address %owner) : @parameter%vote : @storage
+                    CDR;        # address : @parameter%vote : @storage
+                    SENDER;     # address : address : @parameter%vote : @storage
+                    COMPARE;    # int : @parameter%vote : @storage
+                    EQ;         # bool : @parameter%vote : @storage
+                    IF
+                      {}
+                      {
+                        PUSH string "NOT_GOVERNOR"; # string : @parameter%vote : @storage
+                        FAILWITH;   # FAILED
+                      }; # @parameter%vote : @storage
+                    # sp.transfer(params, sp.tez(0), sp.contract(sp.TNat, self.data.daoContractAddress, entry_point='vote').open_some()) # @parameter%vote : @storage
+                    NIL operation; # list operation : @parameter%vote : @storage
+                    DUP 3;      # @storage : list operation : @parameter%vote : @storage
+                    CAR;        # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : list operation : @parameter%vote : @storage
+                    CDR;        # pair (nat %amountWithdrawn) (address %daoContractAddress) : list operation : @parameter%vote : @storage
+                    CDR;        # address : list operation : @parameter%vote : @storage
+                    CONTRACT %vote nat; # option (contract nat) : list operation : @parameter%vote : @storage
+                    IF_SOME
+                      {}
+                      {
+                        PUSH int 279; # int : list operation : @parameter%vote : @storage
+                        FAILWITH;   # FAILED
+                      }; # @some : list operation : @parameter%vote : @storage
+                    PUSH mutez 0; # mutez : @some : list operation : @parameter%vote : @storage
+                    DIG 3;      # @parameter%vote : mutez : @some : list operation : @storage
+                    TRANSFER_TOKENS; # operation : list operation : @storage
+                    CONS;       # list operation : @storage
+                  }
+                  {
+                    SWAP;       # @storage : @parameter%withdraw
+                    # == withdraw ==
+                    # sp.verify(sp.sender == self.data.owner, message = 'NOT_OWNER') # @storage : @parameter%withdraw
+                    DUP;        # @storage : @storage : @parameter%withdraw
+                    DUG 2;      # @storage : @parameter%withdraw : @storage
+                    CDR;        # pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw : @storage
+                    CAR;        # pair (address %governorAddress) (address %owner) : @parameter%withdraw : @storage
+                    CDR;        # address : @parameter%withdraw : @storage
+                    SENDER;     # address : address : @parameter%withdraw : @storage
+                    COMPARE;    # int : @parameter%withdraw : @storage
+                    EQ;         # bool : @parameter%withdraw : @storage
+                    IF
+                      {}
+                      {
+                        PUSH string "NOT_OWNER"; # string : @parameter%withdraw : @storage
+                        FAILWITH;   # FAILED
+                      }; # @parameter%withdraw : @storage
+                    SWAP;       # @storage : @parameter%withdraw
+                    # sp.verify((self.data.amountWithdrawn + params.numberOfTokens) <= (sp.as_nat(sp.level - self.data.startBlock) * self.data.amountPerBlock), message = 'NOT_VESTED') # @storage : @parameter%withdraw
+                    DUP;        # @storage : @storage : @parameter%withdraw
+                    CAR;        # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : @storage : @parameter%withdraw
+                    CAR;        # nat : @storage : @parameter%withdraw
+                    SWAP;       # @storage : nat : @parameter%withdraw
+                    DUP;        # @storage : @storage : nat : @parameter%withdraw
+                    DUG 3;      # @storage : nat : @parameter%withdraw : @storage
+                    GET 5;      # nat : nat : @parameter%withdraw : @storage
+                    LEVEL;      # nat : nat : nat : @parameter%withdraw : @storage
+                    SUB;        # int : nat : @parameter%withdraw : @storage
+                    ISNAT;      # option nat : nat : @parameter%withdraw : @storage
+                    IF_SOME
+                      {}
+                      {
+                        PUSH int 71; # int : nat : @parameter%withdraw : @storage
+                        FAILWITH;   # FAILED
+                      }; # @some : nat : @parameter%withdraw : @storage
+                    MUL;        # nat : @parameter%withdraw : @storage
+                    SWAP;       # @parameter%withdraw : nat : @storage
+                    DUP;        # @parameter%withdraw : @parameter%withdraw : nat : @storage
+                    DUG 2;      # @parameter%withdraw : nat : @parameter%withdraw : @storage
+                    DUP 4;      # @storage : @parameter%withdraw : nat : @parameter%withdraw : @storage
+                    CAR;        # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : @parameter%withdraw : nat : @parameter%withdraw : @storage
+                    CDR;        # pair (nat %amountWithdrawn) (address %daoContractAddress) : @parameter%withdraw : nat : @parameter%withdraw : @storage
+                    CAR;        # nat : @parameter%withdraw : nat : @parameter%withdraw : @storage
+                    ADD;        # nat : nat : @parameter%withdraw : @storage
+                    COMPARE;    # int : @parameter%withdraw : @storage
+                    LE;         # bool : @parameter%withdraw : @storage
+                    IF
+                      {}
+                      {
+                        PUSH string "NOT_VESTED"; # string : @parameter%withdraw : @storage
+                        FAILWITH;   # FAILED
+                      }; # @parameter%withdraw : @storage
+                    SWAP;       # @storage : @parameter%withdraw
+                    # self.data.amountWithdrawn += params.numberOfTokens # @storage : @parameter%withdraw
+                    UNPAIR;     # pair (nat %amountPerBlock) (pair (nat %amountWithdrawn) (address %daoContractAddress)) : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    UNPAIR;     # nat : pair (nat %amountWithdrawn) (address %daoContractAddress) : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    SWAP;       # pair (nat %amountWithdrawn) (address %daoContractAddress) : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    UNPAIR;     # nat : address : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    DUP 5;      # @parameter%withdraw : nat : address : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    ADD;        # nat : address : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    PAIR;       # pair nat address : nat : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    SWAP;       # nat : pair nat address : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    PAIR;       # pair nat (pair nat address) : pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)) : @parameter%withdraw
+                    PAIR;       # pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress))) : @parameter%withdraw
+                    SWAP;       # @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    # sp.transfer(sp.record(from_ = sp.self_address, to_ = sp.sender, value = params.numberOfTokens), sp.tez(0), sp.contract(sp.TRecord(from_ = sp.TAddress, to_ = sp.TAddress, value = sp.TNat).layout(("from_ as from", ("to_ as to", "value"))), self.data.tokenContractAddress, entry_point='transfer').open_some()) # @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    NIL operation; # list operation : @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    DUP 3;      # pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress))) : list operation : @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    GET 6;      # address : list operation : @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    CONTRACT %transfer (pair (address %from) (pair (address %to) (nat %value))); # option (contract (pair (address %from) (pair (address %to) (nat %value)))) : list operation : @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    IF_SOME
+                      {}
+                      {
+                        PUSH int 80; # int : list operation : @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                        FAILWITH;   # FAILED
+                      }; # @some : list operation : @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    PUSH mutez 0; # mutez : @some : list operation : @parameter%withdraw : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    DIG 3;      # @parameter%withdraw : mutez : @some : list operation : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    SENDER;     # address : @parameter%withdraw : mutez : @some : list operation : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    PAIR %to %value; # pair (address %to) (@parameter%withdraw %value) : mutez : @some : list operation : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    SELF_ADDRESS; # address : pair (address %to) (@parameter%withdraw %value) : mutez : @some : list operation : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    PAIR %from; # pair (address %from) (pair (address %to) (@parameter%withdraw %value)) : mutez : @some : list operation : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    TRANSFER_TOKENS; # operation : list operation : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                    CONS;       # list operation : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                  }; # list operation : pair (pair nat (pair nat address)) (pair (pair (address %governorAddress) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+              }; # list operation : pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+          }; # list operation : pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+      }; # list operation : pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+    NIL operation; # list operation : list operation : pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+    SWAP;       # list operation : list operation : pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+    ITER
+      {
+        CONS;       # list operation : pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+      }; # list operation : pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress)))
+    PAIR;       # pair (list operation) (pair (pair nat (pair nat address)) (pair (pair address address) (pair (nat %startBlock) (address %tokenContractAddress))))
+  };
