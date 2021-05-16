@@ -26,8 +26,7 @@ class VestingVault(sp.Contract):
       # The dao address.
       daoContractAddress = Addresses.DAO_ADDRESS
     ):
-        # { "name": "KOL Vesting Contract", "description": "KOL Vesting Contract", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }
-        metadata_data = sp.bytes('0x7b20226e616d65223a20224b4f4c2056657374696e6720436f6e7472616374222c20226465736372697074696f6e223a20224b4f4c2056657374696e6720436f6e7472616374222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d')
+        metadata_data = sp.bytes_of_string('{"name": "kDAO Vesting Contract", "description": "kDAO Vesting Contract", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
         metadata = sp.big_map(
             l = {
@@ -53,6 +52,8 @@ class VestingVault(sp.Contract):
           tokenContractAddress = tokenContractAddress,
           # The dao contract for proposing and voting.
           daoContractAddress = daoContractAddress,
+          # Metadata
+          metadata = metadata,
         )
 
     ################################################################

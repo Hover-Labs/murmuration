@@ -15,8 +15,7 @@ class Faucet(sp.Contract):
       tokenContractAddress = Addresses.TOKEN_CONTRACT_ADDRESS,
       maxTokensPerDrip = 10_000_000_000_000_000_000  
     ):
-        # { "name": "KOL Token Faucet", "description": "Governance Token Faucet for Kolibri DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }
-        metadata_data = sp.bytes('0x7b20226e616d65223a20224b4f4c20546f6b656e20466175636574222c20226465736372697074696f6e223a2022476f7665726e616e636520546f6b656e2046617563657420666f72204b6f6c696272692044414f222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d')
+        metadata_data = sp.bytes_of_string('{ "name": "kDAO Token Faucet", "description": "Governance Token Faucet for Kolibri DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
         metadata = sp.big_map(
             l = {

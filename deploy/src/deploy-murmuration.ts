@@ -182,7 +182,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
 
   console.log('>>> [1/4] Deploying Token Contract')
   counter++
-  const tokenContractStorage = `(Pair (Pair (Pair (Some "${keystore.publicKeyHash}") {}) (Pair {} {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20224b4f4c20546f6b656e222c20226465736372697074696f6e223a2022546865204641312e3220476f7665726e616e636520546f6b656e20466f72204b6f6c69627269222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e6365222c2022696e7465726661636573223a205b2022545a49502d3030372d323032312d30312d3239225d207d})) (Pair (Pair False {}) (Pair False (Pair {Elt 0 (Pair 0 {Elt "decimals" 0x3138; Elt "icon" 0x2068747470733a2f2f6b6f6c696272692d646174612e73332e616d617a6f6e6177732e636f6d2f6c6f676f2e706e67; Elt "name" 0x4b6f6c6962726920476f7665726e616e636520546f6b656e; Elt "symbol" 0x6b44414f})} 0))))`
+  const tokenContractStorage = `(Pair (Pair (Pair (Some "${keystore.publicKeyHash}") {}) (Pair {} {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20226b44414f20546f6b656e222c20226465736372697074696f6e223a2022546865204641312e3220476f7665726e616e636520546f6b656e20466f72204b6f6c69627269222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e6365222c2022696e7465726661636573223a205b2022545a49502d3030372d323032312d30312d3239225d207d})) (Pair (Pair False {}) (Pair False (Pair {Elt 0 (Pair 0 {Elt "decimals" 0x3138; Elt "icon" 0x2068747470733a2f2f6b6f6c696272692d646174612e73332e616d617a6f6e6177732e636f6d2f6c6f676f2e706e67; Elt "name" 0x4b6f6c696272692044414f20546f6b656e; Elt "symbol" 0x6b44414f})} 0))))`
   const tokenDeployResult = await deployContract(
     tokenContract,
     tokenContractStorage,
@@ -194,7 +194,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
 
   console.log('>>> [2/4] Deploying Community Fund')
   counter++
-  const communityFundStorage = `(Pair "${keystore.publicKeyHash}" (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20224b4f4c20546f6b656e20436f6d6d756e6974792046756e64222c20226465736372697074696f6e223a2022476f7665726e616e636520546f6b656e2046756e6420666f72204b6f6c696272692044414f222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d0a} "${tokenDeployResult.contractAddress}"))`
+  const communityFundStorage = `(Pair "${keystore.publicKeyHash}" (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20224b6f6c696272692044414f20436f6d6d756e6974792046756e64222c20226465736372697074696f6e223a2022476f7665726e616e636520546f6b656e2046756e6420666f72204b6f6c696272692044414f222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d} "${tokenDeployResult.contractAddress}"))`
   const communityFundDeployResult = await deployContract(
     communityFundContract,
     communityFundStorage,
@@ -206,9 +206,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
 
   console.log('>>> [3/4] Deploying DAO')
   counter++
-  const daoStorage = `(Pair (Pair (Pair "${communityFundDeployResult.contractAddress
-    }" (Pair ${params.escrowAmount.toFixed()} (Pair ${params.voteDelayBlocks.toFixed()} (Pair ${params.voteLengthBlocks.toFixed()} (Pair ${params.minYayVotesPercentForEscrowReturn.toFixed()} (Pair ${params.blocksInTimelockForExecution.toFixed()} (Pair ${params.blocksInTimelockForCancellation.toFixed()} (Pair ${params.percentageForSuperMajority.toFixed()} (Pair ${params.lowerQuorumCap.toFixed()} ${params.upperQuorumCap.toFixed()}))))))))) (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20224b6f6c6962726920476f7665726e616e63652044414f222c20226465736372697074696f6e223a2022476f7665726e616e63652044414f2076302e302e31222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d0a} (Pair 0 {}))) (Pair (Pair None (Pair ${params.quorum.toFixed()} 0)) (Pair None (Pair "${tokenDeployResult.contractAddress
-    }" None))))`
+  const daoStorage = `(Pair (Pair (Pair "${communityFundDeployResult.contractAddress}" (Pair ${params.escrowAmount.toFixed()} (Pair ${params.voteDelayBlocks.toFixed()} (Pair ${params.voteLengthBlocks.toFixed()} (Pair ${params.minYayVotesPercentForEscrowReturn.toFixed()} (Pair ${params.blocksInTimelockForExecution.toFixed()} (Pair ${params.blocksInTimelockForCancellation.toFixed()} (Pair ${params.percentageForSuperMajority.toFixed()} (Pair ${params.lowerQuorumCap.toFixed()} ${params.upperQuorumCap.toFixed()}))))))))) (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20224b6f6c6962726920476f7665726e616e63652044414f222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d}                                                                                   (Pair 0 {}))) (Pair (Pair None (Pair ${params.quorum.toFixed()} 0)) (Pair None (Pair "${tokenDeployResult.contractAddress}" None))))`
   const daoDeployResult = await deployContract(
     daoContract,
     daoStorage,
@@ -220,8 +218,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
 
   console.log('>>> [4/4] Deploying Faucet')
   counter++
-  const faucetStorage = `(Pair ${params.maxFaucetDripSize.toFixed()} (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20224b4f4c20546f6b656e20466175636574222c20226465736372697074696f6e223a2022476f7665726e616e636520546f6b656e2046617563657420666f72204b6f6c696272692044414f222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d} "${tokenDeployResult.contractAddress
-    }"))`
+  const faucetStorage = `(Pair ${params.maxFaucetDripSize.toFixed()} (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20226b44414f20546f6b656e20466175636574222c20226465736372697074696f6e223a2022476f7665726e616e636520546f6b656e2046617563657420666f72204b6f6c696272692044414f222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d} "${tokenDeployResult.contractAddress}"))`
   const faucetDeployResult = await deployContract(
     faucetContract,
     faucetStorage,
@@ -309,10 +306,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
       `>>> [${++step}/${steps}] Deploying Vesting Contract for ${vestingContract.owner
       }`,
     )
-    const vestingVaultStorage = `(Pair (Pair ${vestingContract.amountPerBlock.toFixed()} (Pair 0 "${daoDeployResult.contractAddress
-      }")) (Pair (Pair "${keystore.publicKeyHash}" "${vestingContract.owner
-      }") (Pair ${vestingContract.vestingStartBlock.toFixed()} "${tokenDeployResult.contractAddress
-      }")))`
+    const vestingVaultStorage =  `(Pair (Pair (Pair ${vestingContract.amountPerBlock.toFixed()}      0) (Pair "${daoDeployResult.contractAddress}"               "${keystore.publicKeyHash}")) (Pair (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b226e616d65223a20226b44414f2056657374696e6720436f6e7472616374222c20226465736372697074696f6e223a20226b44414f2056657374696e6720436f6e7472616374222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d} "${vestingContract.owner}") (Pair ${vestingContract.vestingStartBlock.toFixed()} "${tokenDeployResult.contractAddress}")))`                                 
     const vestingVaultDeployResult = await deployContract(
       vestingVaultContract,
       vestingVaultStorage,

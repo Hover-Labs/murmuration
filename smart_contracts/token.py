@@ -22,7 +22,7 @@ class FA12(sp.Contract):
         token_id = sp.nat(0)
         kol_metadata = sp.map(
             l = {
-                "name": sp.bytes('0x4b6f6c6962726920476f7665726e616e636520546f6b656e'), # Kolibri Governance Token
+                "name": sp.bytes_of_string('Kolibri DAO Token'),
                 "decimals": sp.bytes('0x3138'), # 18
                 "symbol": sp.bytes_of_string('kDAO'),
                 "icon": sp.bytes('0x2068747470733a2f2f6b6f6c696272692d646174612e73332e616d617a6f6e6177732e636f6d2f6c6f676f2e706e67') # https://kolibri-data.s3.amazonaws.com/logo.png
@@ -39,9 +39,7 @@ class FA12(sp.Contract):
             tvalue = sp.TPair(sp.TNat, sp.TMap(sp.TString, sp.TBytes))
         )
         
-        # Hexadecimal representation of:
-        # { "name": "KOL Token", "description": "The FA1.2 Governance Token For Kolibri", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance", "interfaces": [ "TZIP-007-2021-01-29"] }
-        metadata_data = sp.bytes('0x7b20226e616d65223a20224b4f4c20546f6b656e222c20226465736372697074696f6e223a2022546865204641312e3220476f7665726e616e636520546f6b656e20466f72204b6f6c69627269222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e6365222c2022696e7465726661636573223a205b2022545a49502d3030372d323032312d30312d3239225d207d')
+        metadata_data = sp.bytes_of_string('{ "name": "kDAO Token", "description": "The FA1.2 Governance Token For Kolibri", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance", "interfaces": [ "TZIP-007-2021-01-29"] }')
 
         metadata = sp.big_map(
             l = {
