@@ -35,7 +35,7 @@ code
         IF_SOME
           {}
           {
-            PUSH int 53; # int : list operation : @parameter%drip : @storage
+            PUSH int 52; # int : list operation : @parameter%drip : @storage
             FAILWITH;   # FAILED
           }; # @some : list operation : @parameter%drip : @storage
         PUSH mutez 0; # mutez : @some : list operation : @parameter%drip : @storage
