@@ -26,7 +26,7 @@ class VestingVault(sp.Contract):
       # The dao address.
       daoContractAddress = Addresses.DAO_ADDRESS
     ):
-        metadata_data = sp.bytes_of_string(' "name": "kDAO Vesting Contract", "description": "kDAO Vesting Contract", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
+        metadata_data = sp.bytes_of_string('{"name": "kDAO Vesting Contract", "description": "kDAO Vesting Contract", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
         metadata = sp.big_map(
             l = {

@@ -62,7 +62,7 @@ echo ""
 
 # Remove other artifacts to reduce noise.
 echo "> [2 / 2] Cleaning up"
-rm -rf $OUT_DIR
+# rm -rf $OUT_DIR
 echo "> All tidied up."
 echo ""
 
