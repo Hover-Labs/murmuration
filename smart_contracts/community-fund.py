@@ -15,7 +15,6 @@ class CommunityFund(sp.Contract):
       tokenContractAddress = Addresses.TOKEN_CONTRACT_ADDRESS,
       governorAddress = Addresses.GOVERNOR_ADDRESS
     ):
-        # { "name": "Kolibri DAO Community Fund", "description": "Governance Token Fund for Kolibri DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }
         metadata_data = sp.bytes_of_string('{ "name": "Kolibri DAO Community Fund", "description": "Governance Token Fund for Kolibri DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
         metadata = sp.big_map(
