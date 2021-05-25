@@ -216,37 +216,37 @@ export const deploy = async (params: DeployParams): Promise<void> => {
   )
   console.log('')
 
-  console.log('>>> [4/4] Deploying Faucet')
-  counter++
-  const faucetStorage = `(Pair ${params.maxFaucetDripSize.toFixed()} (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20226b44414f20546f6b656e20466175636574222c20226465736372697074696f6e223a2022476f7665726e616e636520546f6b656e2046617563657420666f72204b6f6c696272692044414f222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d} "${tokenDeployResult.contractAddress}"))`
-  const faucetDeployResult = await deployContract(
-    faucetContract,
-    faucetStorage,
-    keystore,
-    counter,
-    params.nodeAddress,
-  )
-  console.log('')
-
-  // console.log('------------------------------------------------------')
-  // console.log('>> Deploy Complete')
-  // console.log('>> Minting...')
-  // console.log('------------------------------------------------------')
-  // console.log('')
-
-  // console.log('>>> [1/2] Minting Tokens')
+  // console.log('>>> [4/4] Deploying Faucet')
   // counter++
-  // const mintParam = `Pair "${keystore.publicKeyHash
-  //   }" ${CONFIG.TOKENS_TO_MINT.toFixed()}`
-  // await sendOperation(
-  //   tokenDeployResult.contractAddress,
-  //   'mint',
-  //   mintParam,
+  // const faucetStorage = `(Pair ${params.maxFaucetDripSize.toFixed()} (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20226b44414f20546f6b656e20466175636574222c20226465736372697074696f6e223a2022476f7665726e616e636520546f6b656e2046617563657420666f72204b6f6c696272692044414f222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d} "${tokenDeployResult.contractAddress}"))`
+  // const faucetDeployResult = await deployContract(
+  //   faucetContract,
+  //   faucetStorage,
   //   keystore,
   //   counter,
   //   params.nodeAddress,
   // )
   // console.log('')
+
+  console.log('------------------------------------------------------')
+  console.log('>> Deploy Complete')
+  console.log('>> Minting...')
+  console.log('------------------------------------------------------')
+  console.log('')
+
+  console.log('>>> [1/2] Minting Tokens')
+  counter++
+  const mintParam = `Pair "${keystore.publicKeyHash
+    }" ${CONFIG.TOKENS_TO_MINT.toFixed()}`
+  await sendOperation(
+    tokenDeployResult.contractAddress,
+    'mint',
+    mintParam,
+    keystore,
+    counter,
+    params.nodeAddress,
+  )
+  console.log('')
 
   // console.log('>>> [2/2] Locking Minting')
   // counter++
@@ -260,11 +260,11 @@ export const deploy = async (params: DeployParams): Promise<void> => {
   // )
   // console.log('')
 
-  // console.log('------------------------------------------------------')
-  // console.log('>> Minting Complete')
-  // console.log('>> Wiring')
-  // console.log('------------------------------------------------------')
-  // console.log('')
+  console.log('------------------------------------------------------')
+  console.log('>> Minting Complete')
+  console.log('>> Wiring')
+  console.log('------------------------------------------------------')
+  console.log('')
 
   // console.log('>>> [1/2] Setting Governor for Community Fund')
   // counter++
@@ -291,7 +291,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
   // console.log('')
 
   console.log('------------------------------------------------------')
-  // console.log('>> Wiring Complete')
+  console.log('>> Wiring Complete')
   console.log('>> Deploying Vesting Contracts')
   console.log('------------------------------------------------------')
   console.log('')
@@ -317,38 +317,38 @@ export const deploy = async (params: DeployParams): Promise<void> => {
     vestingVaultDeployResults.push(vestingVaultDeployResult)
     console.log('')
 
-    // counter++
-    // console.log(
-    //   `>>> [${++step}/${steps}] Transferring Vesting Contract for ${vestingContract.owner
-    //   }`,
-    // )
-    // const transferParam = `Pair "${keystore.publicKeyHash}" (Pair "${vestingVaultDeployResult.contractAddress
-    //   }" ${vestingContract.amount.toFixed()})`
-    // await sendOperation(
-    //   tokenDeployResult.contractAddress,
-    //   'transfer',
-    //   transferParam,
-    //   keystore,
-    //   counter,
-    //   params.nodeAddress,
-    // )
-    // console.log(``)
+    counter++
+    console.log(
+      `>>> [${++step}/${steps}] Transferring Vesting Contract for ${vestingContract.owner
+      }`,
+    )
+    const transferParam = `Pair "${keystore.publicKeyHash}" (Pair "${vestingVaultDeployResult.contractAddress
+      }" ${vestingContract.amount.toFixed()})`
+    await sendOperation(
+      tokenDeployResult.contractAddress,
+      'transfer',
+      transferParam,
+      keystore,
+      counter,
+      params.nodeAddress,
+    )
+    console.log(``)
   }
 
-  // console.log('------------------------------------------------------')
-  // console.log('>> Vesting Contracts Deployed and Configured')
-  // console.log('>> Distributing Tokens')
-  // console.log('------------------------------------------------------')
-  // console.log('')
+  console.log('------------------------------------------------------')
+  console.log('>> Vesting Contracts Deployed and Configured')
+  console.log('>> Distributing Tokens')
+  console.log('------------------------------------------------------')
+  console.log('')
 
-  // const totalInVaults = params.vestingContracts.reduce(
-  //   (accumulated: BigNumber, next: VestingContract) => {
-  //     return accumulated.plus(next.amount)
-  //   },
-  //   new BigNumber(0),
-  // )
-  // console.log(`Total In Vesting Vaults: ${totalInVaults.toFixed()}`)
-  // console.log('')
+  const totalInVaults = params.vestingContracts.reduce(
+    (accumulated: BigNumber, next: VestingContract) => {
+      return accumulated.plus(next.amount)
+    },
+    new BigNumber(0),
+  )
+  console.log(`Total In Vesting Vaults: ${totalInVaults.toFixed()}`)
+  console.log('')
 
   // console.log(`Moving ${params.faucetAmount.toFixed()} Tokens to Faucet`)
   // counter++
@@ -364,39 +364,39 @@ export const deploy = async (params: DeployParams): Promise<void> => {
   // )
   // console.log('')
 
-  // console.log(
-  //   `Moving ${params.airdropAmount.toFixed()} Tokens to ${params.airdropAddress
-  //   }`,
-  // )
-  // counter++
-  // const airdropTransferParam = `Pair "${keystore.publicKeyHash}" (Pair "${params.airdropAddress
-  //   }" ${params.airdropAmount.toFixed()})`
-  // await sendOperation(
-  //   tokenDeployResult.contractAddress,
-  //   'transfer',
-  //   airdropTransferParam,
-  //   keystore,
-  //   counter,
-  //   params.nodeAddress,
-  // )
-  // console.log('')
+  console.log(
+    `Moving ${params.airdropAmount.toFixed()} Tokens to ${params.airdropAddress
+    }`,
+  )
+  counter++
+  const airdropTransferParam = `Pair "${keystore.publicKeyHash}" (Pair "${params.airdropAddress
+    }" ${params.airdropAmount.toFixed()})`
+  await sendOperation(
+    tokenDeployResult.contractAddress,
+    'transfer',
+    airdropTransferParam,
+    keystore,
+    counter,
+    params.nodeAddress,
+  )
+  console.log('')
 
-  // const remainder = CONFIG.TOKENS_TO_MINT.minus(totalInVaults)
-  //   .minus(params.faucetAmount)
-  //   .minus(params.airdropAmount)
-  // console.log(`Moving remaining ${remainder.toFixed()} to Community Fund`)
-  // counter++
-  // const communityFundTransferParam = `Pair "${keystore.publicKeyHash}" (Pair "${communityFundDeployResult.contractAddress
-  //   }" ${remainder.toFixed()})`
-  // await sendOperation(
-  //   tokenDeployResult.contractAddress,
-  //   'transfer',
-  //   communityFundTransferParam,
-  //   keystore,
-  //   counter,
-  //   params.nodeAddress,
-  // )
-  // console.log('')
+  const remainder = CONFIG.TOKENS_TO_MINT.minus(totalInVaults)
+    .minus(params.faucetAmount)
+    .minus(params.airdropAmount)
+  console.log(`Moving remaining ${remainder.toFixed()} to Community Fund`)
+  counter++
+  const communityFundTransferParam = `Pair "${keystore.publicKeyHash}" (Pair "${communityFundDeployResult.contractAddress
+    }" ${remainder.toFixed()})`
+  await sendOperation(
+    tokenDeployResult.contractAddress,
+    'transfer',
+    communityFundTransferParam,
+    keystore,
+    counter,
+    params.nodeAddress,
+  )
+  console.log('')
 
   console.log('------------------------------------------------------')
   console.log('>> Tokens Distributed')
@@ -415,9 +415,9 @@ export const deploy = async (params: DeployParams): Promise<void> => {
   console.log(
     `DAO Contract:            ${daoDeployResult.contractAddress} (${daoDeployResult.operationHash})`,
   )
-  console.log(
-    `Faucet Contract:         ${faucetDeployResult.contractAddress} (${faucetDeployResult.operationHash})`,
-  )
+  // console.log(
+  //   `Faucet Contract:         ${faucetDeployResult.contractAddress} (${faucetDeployResult.operationHash})`,
+  // )
 
   console.log('')
   console.log('---------------- Vesting Contracts ---------------------')
