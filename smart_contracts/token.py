@@ -296,11 +296,8 @@ class FA12(sp.Contract):
     # CHANGED: Remove burning.       
 
     def is_administrator(self, sender):
-        sp.if self.data.administrator.is_some():
-            return sender == self.data.administrator.open_some()
-        sp.else:
-            return False
-
+      return self.data.administrator == sp.some(sender)
+      
     @sp.entry_point
     def setAdministrator(self, params):
         sp.set_type(params, sp.TOption(sp.TAddress))
@@ -334,6 +331,39 @@ class Viewer(sp.Contract):
 if __name__ == "__main__":
 
     Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
+
+    ################################################################
+    # transfer
+    ################################################################
+
+    @sp.add_test(name="transfer - allows transfvers if admin is none")
+    def test():
+        # GIVEN a Token contract
+        scenario = sp.test_scenario()
+
+        token = FA12(
+            admin = Addresses.TOKEN_ADMIN_ADDRESS,
+        )
+        scenario += token
+
+        # AND an alice has 100 tokens
+        scenario += token.mint(
+            sp.record(
+                value = 100,
+                address = Addresses.ALICE_ADDRESS
+            )
+        ).run(
+            level = sp.nat(0),
+            sender = Addresses.TOKEN_ADMIN_ADDRESS,
+        )
+
+        # AND the admin is set to none
+        scenario += token.setAdministrator(sp.none).run(
+          sender = Addresses.TOKEN_ADMIN_ADDRESS
+        )
+
+        # WHEN Alice transfers tokens
+        scenario += token.transfer(from_ = Addresses.ALICE_ADDRESS, to_ = Addresses.BOB_ADDRESS, value = 1).run(sender = Addresses.ALICE_ADDRESS)
 
     ################################################################
     # getPriorBalance
