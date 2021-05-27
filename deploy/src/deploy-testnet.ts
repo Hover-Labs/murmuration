@@ -8,20 +8,20 @@ const params: DeployParams = {
   vestingContracts: [
     {
       owner: 'tz1YfB2H1NoZVUq4heHqrVX4oVp99yz8gwNq',
-      amountPerBlock: new BigNumber('0.08561643835'),
-      vestingStartBlock: new BigNumber('210700'),
+      amountPerBlock: new BigNumber('85616438350000000'),
+      vestingStartBlock: new BigNumber('217000'),
       amount: scaleTokenAmount(new BigNumber('90000')),
     },
     {
       owner: 'tz1QM9J63wfTrGW7HLotr7Kshy8q8LhdorJe',
-      amountPerBlock: new BigNumber('0.08561643835'),
-      vestingStartBlock: new BigNumber('210700'),
+      amountPerBlock: new BigNumber('85616438350000000'),
+      vestingStartBlock: new BigNumber('217000'),
       amount: scaleTokenAmount(new BigNumber('90000')),
     },
     {
       owner: 'tz1YvwHP7TDbAMWf2sFZ5AzjRPe4GyA7Fc46',
-      amountPerBlock: new BigNumber('0.01902587519'),
-      vestingStartBlock: new BigNumber('210700'),
+      amountPerBlock: new BigNumber('19025875190000000'),
+      vestingStartBlock: new BigNumber('217000'),
       amount: scaleTokenAmount(new BigNumber('20000')),
     },
   ],
