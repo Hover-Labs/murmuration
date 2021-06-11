@@ -30,13 +30,12 @@ class FA12(sp.Contract):
             tkey = sp.TString,
             tvalue = sp.TBytes
         )
-        kol_entry = (token_id, kol_metadata)
         token_metadata = sp.big_map(
-            l = {
-                token_id: kol_entry,
-            },
-            tkey = sp.TNat,
-            tvalue = sp.TPair(sp.TNat, sp.TMap(sp.TString, sp.TBytes))
+          {
+            0: sp.record(token_id = 0, token_info = kol_metadata)
+          },
+          tkey = sp.TNat,
+          tvalue = sp.TRecord(token_id = sp.TNat, token_info = sp.TMap(sp.TString, sp.TBytes))
         )
         
         metadata_data = sp.bytes_of_string('{ "name": "kDAO Token", "description": "The FA1.2 Governance Token For Kolibri", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance", "interfaces": [ "TZIP-007-2021-01-29"] }')
@@ -99,7 +98,7 @@ class FA12(sp.Contract):
     # CHANGED: Allow admin to update token metadata.	
     @sp.entry_point	
     def updateTokenMetadata(self, params):	
-        sp.set_type(params, sp.TPair(sp.TNat, sp.TMap(sp.TString, sp.TBytes)))	
+        sp.set_type(params, sp.TRecord(token_id = sp.TNat, token_info = sp.TMap(sp.TString, sp.TBytes)))	
 
         sp.verify(self.is_administrator(sp.sender), "NOT_ADMINISTRATOR")
 
@@ -1624,7 +1623,10 @@ if __name__ == "__main__":
             tkey = sp.TString,
             tvalue = sp.TBytes
         )
-        newData = (sp.nat(0), newMap)
+        newData = sp.record(
+          token_id = sp.nat(0), 
+          token_info = newMap
+        )
 
         scenario += token.updateTokenMetadata(newData).run(
             sender = Addresses.TOKEN_ADMIN_ADDRESS,
@@ -1632,8 +1634,8 @@ if __name__ == "__main__":
 
         # THEN the contract is updated.
         tokenMetadata = token.data.token_metadata[0]
-        tokenId = sp.fst(tokenMetadata)
-        tokenMetadataMap = sp.snd(tokenMetadata)
+        tokenId = tokenMetadata.token_id
+        tokenMetadataMap = tokenMetadata.token_info
                 
         scenario.verify(tokenId == sp.nat(0))
         scenario.verify(tokenMetadataMap[newKey] == newValue)
@@ -1656,7 +1658,10 @@ if __name__ == "__main__":
             tkey = sp.TString,
             tvalue = sp.TBytes
         )
-        newData = (sp.nat(0), newMap)
+        newData = sp.record(
+          token_id = sp.nat(0), 
+          token_info = newMap
+        )
         scenario += token.updateTokenMetadata(newData).run(
             sender = Addresses.NULL_ADDRESS,
             valid = False
