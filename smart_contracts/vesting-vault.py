@@ -1,5 +1,82 @@
 import smartpy as sp
 
+# TODO(keefertaylor): Dedupe me.
+
+Proposal = sp.import_script_from_url("file:common/proposal.py")
+# A type recording the way an address voted.
+# Params:
+# - voteValue (nat): The Vote value
+# - level (nat): The block level the vote was cast on.
+# - votes (nat): The number of tokens voted with. 
+VOTE_RECORD_TYPE = sp.TRecord(
+  voteValue = sp.TNat,
+  level = sp.TNat,
+  votes = sp.TNat,
+).layout(("voteValue", ("level", "votes")))
+
+
+# A type representing a quorum cap. 
+# Params:
+# - lower (nat): The lower bound
+# - upper (nat): The upper bound
+QUORUM_CAP_TYPE = sp.TRecord(
+  lower = sp.TNat, 
+  upper = sp.TNat
+).layout(("lower", "upper")) 
+
+
+################################################################
+################################################################
+# Poll Outcomes
+################################################################
+################################################################
+
+POLL_OUTCOME_FAILED = 0       # Did not pass voting
+POLL_OUTCOME_IN_TIMELOCK = 1  # Passed voting, is in timelock
+POLL_OUTCOME_EXECUTED = 2     # Passed voting, executed in timelock
+POLL_OUTCOME_CANCELLED = 3    # Passed voting, but cancelled from timelock
+
+# A poll for a proposal.
+# Params:
+# - id (nat): An automatically assigned identifier for the poll.
+# - proposal (Proposal.PROPOSAL_TYPE): The proposal
+# - votingStart (nat): The first block of voting.
+# - votingEnd (nat): The last block of voting.
+# - yayVotes (nat): The number of yay votes.
+# - nayVotes (nat): The number of nay votes.
+# - abstainVotes (nat): The number of abstain votes.
+# - totalVotes (nat): The total number of votes.
+# - voters (set<nat>): The addresses which have voted.
+# - author (address): The author of the proposal.
+# - escrowAmount (nat): The amount of tokens escrowed for the proposal.
+# - quorum (nat): The quorum the poll needs to achieve. 
+# - quorumCap (nat): The quorum caps of the proposal.
+POLL_TYPE = sp.TRecord(
+  id = sp.TNat,
+  proposal = Proposal.PROPOSAL_TYPE,
+  votingStartBlock = sp.TNat,
+  votingEndBlock = sp.TNat,
+  yayVotes = sp.TNat,
+  nayVotes = sp.TNat,
+  abstainVotes = sp.TNat,
+  totalVotes = sp.TNat,
+  voters = sp.TMap(sp.TAddress, VOTE_RECORD_TYPE),
+  author = sp.TAddress,
+  escrowAmount = sp.TNat,
+  quorum = sp.TNat,
+  quorumCap = QUORUM_CAP_TYPE
+).layout(("id", ("proposal", ("votingStartBlock", ("votingEndBlock", ("yayVotes", ("nayVotes", ("abstainVotes", ("totalVotes", ("voters", ("author", ("escrowAmount", ("quorum", "quorumCap")))))))))))))
+
+
+# A historical result of a vote.
+# Params:
+# - outcome (nat): The outcome of the poll
+# - poll (POLL_TYPE): The poll and the results.
+HISTORICAL_OUTCOME_TYPE = sp.TRecord(
+  outcome = sp.TNat,
+  poll = POLL_TYPE
+).layout(("outcome", "poll"))
+
 ################################################################
 ################################################################
 # Contract
@@ -283,6 +360,22 @@ class VestingVault(sp.Contract):
         "vote"
       ).open_some()
       sp.transfer(voteValue, sp.mutez(0), handle)
+
+    # Execute a proposal
+    @sp.entry_point
+    def executeTimelock(self, unit):
+      sp.set_type(unit, sp.TUnit)
+
+      # Verify the requester is the owner.
+      sp.verify(sp.sender == self.data.owner, "NOT_GOVERNOR")            
+
+      # Send an execution request
+      handle = sp.contract(
+        sp.TUnit,
+        self.data.daoContractAddress,
+        "executeTimelock"
+      ).open_some()
+      sp.transfer(sp.unit, sp.mutez(0), handle)
 
 ################################################################
 ################################################################
@@ -1092,6 +1185,133 @@ if __name__ == "__main__":
 
     # AND the vesting contract is listed in voters
     scenario.verify(dao.data.poll.open_some().voters.contains(vault.address))
+
+  ################################################################
+  # executeTimelock
+  ################################################################
+
+  @sp.add_test(name="executeTimelock - successfully executes a proposal")
+  def test():
+    scenario = sp.test_scenario()
+
+    # GIVEN a token contract
+    token = Token.FA12(
+      admin = Addresses.TOKEN_ADMIN_ADDRESS,
+    )
+    scenario += token
+
+    # AND a vesting vault contract
+    amountPerBlock = 1
+    startBlock = 0
+    owner = Addresses.TOKEN_RECIPIENT
+    vault = VestingVault(
+      amountPerBlock = amountPerBlock,
+      daoContractAddress = Addresses.DAO_ADDRESS, # Updated later
+      startBlock = startBlock,
+      owner = owner,
+      tokenContractAddress = token.address
+    )
+    scenario += vault
+
+    # AND a store value contract with the dao as the admin.
+    storeContract = Store.StoreValueContract(value = 0, admin = Addresses.TOKEN_ADMIN_ADDRESS)
+    scenario += storeContract
+
+    # AND an item in the timelock
+    newValue = sp.nat(3)
+    def updateLambda(unitParam):
+      sp.set_type(unitParam, sp.TUnit)
+      storeContractHandle = sp.contract(sp.TNat, storeContract.address, 'replace').open_some()
+      sp.result([sp.transfer_operation(newValue, sp.mutez(0), storeContractHandle)])    
+
+    pollId = sp.nat(0)
+    endBlock = sp.nat(10)
+    cancelBlock = sp.nat(20)
+    timelockItem = sp.record(
+      id = pollId,
+      proposal = sp.record(
+        title = 'timelocked prop',
+        descriptionLink = 'ipfs://xyz',
+        descriptionHash = "xyz123",
+        proposalLambda = updateLambda
+      ),
+      endBlock = endBlock,
+      cancelBlock = cancelBlock,
+      author = vault.address,
+    )
+
+    poll = sp.record(
+      id = pollId,
+      proposal = sp.record(
+        title = "timelocked prop",
+        descriptionLink = 'ipfs://xyz',
+        descriptionHash = "xyz123",
+        proposalLambda = sp.build_lambda(lambda x: sp.list(l = [], t = sp.TOperation))
+      ),
+      votingStartBlock = sp.nat(1),
+      votingEndBlock = sp.nat(5),
+      yayVotes = sp.nat(100),
+      nayVotes = sp.nat(0),
+      abstainVotes = sp.nat(0),
+      totalVotes = sp.nat(100),
+      voters = {},
+      author = vault.address,
+      escrowAmount = sp.nat(2),
+      quorum = sp.nat(100),
+      quorumCap = sp.record(lower = sp.nat(0), upper = sp.nat(1000))
+    )
+
+    # AND a dao contract with the item.
+    dao = Dao.DaoContract(
+      timelockItem = sp.some(timelockItem),
+      outcomes = sp.big_map(
+        l = {
+            pollId: sp.record(
+              outcome = POLL_OUTCOME_IN_TIMELOCK,
+              poll = poll
+            )
+        },
+        tkey = sp.TNat,
+        tvalue = HISTORICAL_OUTCOME_TYPE,
+      )
+    )
+    scenario += dao
+
+    # AND the store contract has the dao as the admin.
+    scenario += storeContract.setAdmin(dao.address)
+
+    # AND the vault is set to point at the DAO
+    setDaoParam = sp.record(newDaoContractAddress = dao.address)
+    scenario += vault.setDaoContractAddress(setDaoParam).run(
+      sender = Addresses.GOVERNOR_ADDRESS
+    )
+
+    # AND the vault is funded.
+    tokensInVault = sp.nat(100)
+    scenario += token.mint(
+      sp.record(
+        address = vault.address,
+        value = tokensInVault
+      )
+    ).run(
+      sender = Addresses.TOKEN_ADMIN_ADDRESS,
+      level = 0
+    )
+
+    # WHEN executeTimelock is called
+    scenario += vault.executeTimelock(sp.unit).run(
+      sender = Addresses.TOKEN_RECIPIENT,
+      level = endBlock + 1,
+    )    
+
+    # THEN the proposal executed
+    scenario.verify(storeContract.data.storedValue == newValue)
+
+    # AND the historical outcome is updated.
+    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_EXECUTED)
+
+    # AND the timelock is empty.
+    scenario.verify(~dao.data.timelockItem.is_some())
 
   ################################################################
   # rotateOwner
