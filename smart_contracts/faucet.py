@@ -7,6 +7,7 @@ import smartpy as sp
 ################################################################
 
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
+Errors = sp.import_script_from_url("file:common/errors.py")
 
 # A faucet contract for KOL Governance Tokens
 class Faucet(sp.Contract):
@@ -46,7 +47,7 @@ class Faucet(sp.Contract):
       sp.set_type(params, sp.TRecord(numberOfTokens = sp.TNat).layout("numberOfTokens"))
 
       # Verify the requester is not asking for too many tokens.
-      sp.verify(params.numberOfTokens <= self.data.maxTokensPerDrip, "TOO_MANY_TOKENS")
+      sp.verify(params.numberOfTokens <= self.data.maxTokensPerDrip, Errors.ERROR_TOO_MANY_TOKENS)
 
       # Request tokens transferred to recipient.
       handle = sp.contract(

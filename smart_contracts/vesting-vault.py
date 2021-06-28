@@ -7,6 +7,7 @@ import smartpy as sp
 ################################################################
 
 Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
+Errors = sp.import_script_from_url("file:common/errors.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
 
 # A simple vesting contract.
@@ -66,13 +67,13 @@ class VestingVault(sp.Contract):
       sp.set_type(params, sp.TRecord(numberOfTokens = sp.TNat).layout("numberOfTokens"))
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")
+      sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
 
       # Verify the requester can withdraw the amount of tokens.
       numberOfBlocksElapsed = sp.as_nat(sp.level - self.data.startBlock)
       maximumAmountAllowed = numberOfBlocksElapsed * self.data.amountPerBlock
       totalWithdrawn = self.data.amountWithdrawn + params.numberOfTokens
-      sp.verify(totalWithdrawn <= maximumAmountAllowed, "NOT_VESTED")
+      sp.verify(totalWithdrawn <= maximumAmountAllowed, Errors.ERROR_NOT_VESTED)
 
       # Update amount withdrawn
       self.data.amountWithdrawn = totalWithdrawn
@@ -101,7 +102,7 @@ class VestingVault(sp.Contract):
       sp.set_type(params, sp.TRecord(destinationAddress = sp.TAddress).layout("destinationAddress"))
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")
+      sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
 
       sp.send(params.destinationAddress, sp.balance)
 
@@ -115,10 +116,10 @@ class VestingVault(sp.Contract):
       ).layout(("tokenContractAddress", ("amount", "destination"))))
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")
+      sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
 
       # Verify the request is not for the vesting tokens.
-      sp.verify(params.tokenContractAddress != self.data.tokenContractAddress, "USE_WITHDRAW_INSTEAD")
+      sp.verify(params.tokenContractAddress != self.data.tokenContractAddress, Errors.ERROR_USE_WITHDRAW)
 
       # Transfer the tokens
       handle = sp.contract(
@@ -144,11 +145,11 @@ class VestingVault(sp.Contract):
       ).layout(("tokenContractAddress", ("tokenId", ("amount", "destination")))))
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "Not owner")
+      sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
 
       # Verify the request is not for the vesting tokens.
       # The vesting tokens are assumed to be FA1.2 but this sanity check is a trivial amount of gas
-      sp.verify(params.tokenContractAddress != self.data.tokenContractAddress, "USE_WITHDRAW_INSTEAD")
+      sp.verify(params.tokenContractAddress != self.data.tokenContractAddress, Errors.ERROR_USE_WITHDRAW)
 
       # Transfer the tokens
       handle = sp.contract(
@@ -192,7 +193,7 @@ class VestingVault(sp.Contract):
       sp.set_type(params, sp.TRecord(newOwner = sp.TAddress).layout("newOwner"))
 
       # Verify the requester is the governor
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
       # Set owner.
       self.data.owner = params.newOwner  
@@ -203,7 +204,7 @@ class VestingVault(sp.Contract):
       sp.set_type(params, sp.TRecord(newDaoContractAddress = sp.TAddress).layout("newDaoContractAddress"))
 
       # Verify the requester is the governor
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
       # Set address.
       self.data.daoContractAddress = params.newDaoContractAddress        
@@ -214,7 +215,7 @@ class VestingVault(sp.Contract):
       sp.set_type(newGovernorAddress, sp.TAddress)
 
       # Verify command came from governor.
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
       # Rotate addresses
       self.data.governorAddress = newGovernorAddress
@@ -235,7 +236,7 @@ class VestingVault(sp.Contract):
       ).layout(("escrowAmount", "proposal")))
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")      
+      sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)      
 
       # Send approvals.
       # This function sends two changes:
@@ -274,7 +275,7 @@ class VestingVault(sp.Contract):
       sp.set_type(voteValue, sp.TNat)
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")
+      sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
 
       # Send a vote request
       handle = sp.contract(
@@ -290,7 +291,7 @@ class VestingVault(sp.Contract):
       sp.set_type(unit, sp.TUnit)
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")            
+      sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)            
 
       # Send an execution request
       handle = sp.contract(

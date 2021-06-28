@@ -7,6 +7,7 @@ import smartpy as sp
 ################################################################
 
 Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
+Errors = sp.import_script_from_url("file:common/errors.py")
 
 # A community fund for KOL tokens managed by the DAO.
 class CommunityFund(sp.Contract):
@@ -45,7 +46,7 @@ class CommunityFund(sp.Contract):
       sp.set_type(newGovernorAddress, sp.TAddress)
 
       # Verify command came from governor.
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
       # Rotate addresses
       self.data.governorAddress = newGovernorAddress
@@ -56,7 +57,7 @@ class CommunityFund(sp.Contract):
       sp.set_type(params, sp.TRecord(numberOfTokens = sp.TNat, destination = sp.TAddress).layout(("numberOfTokens", "destination")))
 
       # Verify command came from governor.
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
       # Request tokens transferred to destination
       handle = sp.contract(
@@ -73,7 +74,7 @@ class CommunityFund(sp.Contract):
       sp.set_type(params, sp.TRecord(destinationAddress = sp.TAddress).layout("destinationAddress"))
 
       # Verify the requester is the governor.
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
       sp.send(params.destinationAddress, sp.balance)
 
     # Rescue FA1.2 Tokens
@@ -86,7 +87,7 @@ class CommunityFund(sp.Contract):
       ).layout(("tokenContractAddress", ("amount", "destination"))))
 
       # Verify the requester is the governor.
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
       # Transfer the tokens
       handle = sp.contract(
@@ -112,7 +113,7 @@ class CommunityFund(sp.Contract):
       ).layout(("tokenContractAddress", ("tokenId", ("amount", "destination")))))
 
       # Verify the requester is the governor.
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
       # Transfer the tokens
       handle = sp.contract(
@@ -151,7 +152,7 @@ class CommunityFund(sp.Contract):
       sp.set_type(newDelegate, sp.TOption(sp.TKeyHash))
 
       # Verify the caller is the governor.
-      sp.verify(sp.sender == self.data.governorAddress, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
       sp.set_delegate(newDelegate)
 

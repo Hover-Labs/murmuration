@@ -10,6 +10,7 @@
 import smartpy as sp
 
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
+Errors = sp.import_script_from_url("file:common/errors.py")
 
 # CHANGED: Compress the contract into a single entity, rather than using inheritance.
 class FA12(sp.Contract):
@@ -89,7 +90,7 @@ class FA12(sp.Contract):
     def updateContractMetadata(self, params):	
         sp.set_type(params, sp.TPair(sp.TString, sp.TBytes))	
 
-        sp.verify(self.is_administrator(sp.sender), "NOT_ADMINISTRATOR")
+        sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
 
         key = sp.fst(params)	
         value = sp.snd(params)	
@@ -100,7 +101,7 @@ class FA12(sp.Contract):
     def updateTokenMetadata(self, params):	
         sp.set_type(params, sp.TRecord(token_id = sp.TNat, token_info = sp.TMap(sp.TString, sp.TBytes)))	
 
-        sp.verify(self.is_administrator(sp.sender), "NOT_ADMINISTRATOR")
+        sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
 
         self.data.token_metadata[0] = params
         
@@ -131,7 +132,7 @@ class FA12(sp.Contract):
             level = sp.TNat,
         ).layout(("address", "level")))
 
-        sp.verify(params.level < sp.level, "BLOCK_LEVEL_TOO_SOON")
+        sp.verify(params.level < sp.level, Errors.ERROR_BLOCK_LEVEL_TOO_SOON)
 
         # If there are no checkpoints, return 0.
         sp.if self.data.numCheckpoints.get(params.address, 0) == 0:
@@ -197,13 +198,13 @@ class FA12(sp.Contract):
         sp.verify(self.is_administrator(sp.sender) |
             (~self.is_paused() &
                 ((params.from_ == sp.sender) |
-                 (self.data.balances[params.from_].approvals[sp.sender] >= params.value))), "NOT_ALLOWED")
+                 (self.data.balances[params.from_].approvals[sp.sender] >= params.value))), Errors.ERROR_NOT_ALLOWED)
         self.addAddressIfNecessary(params.to_)
 
         # CHANGED: Add from address as well.
         self.addAddressIfNecessary(params.from_)
 
-        sp.verify(self.data.balances[params.from_].balance >= params.value, "LOW_BALANCE")
+        sp.verify(self.data.balances[params.from_].balance >= params.value, Errors.ERROR_LOW_BALANCE)
         self.data.balances[params.from_].balance = sp.as_nat(self.data.balances[params.from_].balance - params.value)
         self.data.balances[params.to_].balance += params.value
         sp.if (params.from_ != sp.sender) & (~self.is_administrator(sp.sender)):
@@ -235,9 +236,9 @@ class FA12(sp.Contract):
         # before you have a balance.
         self.addAddressIfNecessary(sp.sender)
 
-        sp.verify(~self.is_paused(), "PAUSED")
+        sp.verify(~self.is_paused(), Errors.ERROR_PAUSED)
         alreadyApproved = self.data.balances[sp.sender].approvals.get(params.spender, 0)
-        sp.verify((alreadyApproved == 0) | (params.value == 0), "UNSAFE_ALLOWANCE_CHANGE")
+        sp.verify((alreadyApproved == 0) | (params.value == 0), Errors.ERROR_UNSAFE_ALLOWANCE_CHANGE)
         self.data.balances[sp.sender].approvals[params.spender] = params.value
 
     def addAddressIfNecessary(self, address):
@@ -268,16 +269,16 @@ class FA12(sp.Contract):
     def disableMinting(self, unit):
         sp.set_type(unit, sp.TUnit)
 
-        sp.verify(self.is_administrator(sp.sender), "NOT_ADMINISTRATOR")
+        sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
         self.data.mintingDisabled = True        
 
     @sp.entry_point
     def mint(self, params):
         # CHANGED: Disallow minting.
-        sp.verify(self.data.mintingDisabled == False, "MINTING_DISABLED")
+        sp.verify(self.data.mintingDisabled == False, Errors.ERROR_NOT_ALLOWED)
         
         sp.set_type(params, sp.TRecord(address = sp.TAddress, value = sp.TNat))
-        sp.verify(self.is_administrator(sp.sender), "NOT_ADMINISTRATOR")
+        sp.verify(self.is_administrator(sp.sender),  Errors.ERROR_NOT_ADMINISTRATOR)
         self.addAddressIfNecessary(params.address)
         self.data.balances[params.address].balance += params.value
         self.data.totalSupply += params.value
@@ -300,7 +301,7 @@ class FA12(sp.Contract):
     @sp.entry_point
     def setAdministrator(self, params):
         sp.set_type(params, sp.TOption(sp.TAddress))
-        sp.verify(self.is_administrator(sp.sender), "NOT_ADMINISTRATOR")
+        sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
         self.data.administrator = params
 
     @sp.view(sp.TOption(sp.TAddress))
@@ -314,7 +315,7 @@ class FA12(sp.Contract):
     @sp.entry_point
     def setPause(self, params):
         sp.set_type(params, sp.TBool)
-        sp.verify(self.is_administrator(sp.sender), "NOT_ADMINISTRATOR")
+        sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
         self.data.paused = params
 
 

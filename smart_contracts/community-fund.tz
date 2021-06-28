@@ -36,7 +36,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 92; # int : @parameter%rescueFA12 : @storage
+                    PUSH int 93; # int : @parameter%rescueFA12 : @storage
                     FAILWITH;   # FAILED
                   }; # @some : @parameter%rescueFA12 : @storage
                 NIL operation; # list operation : @some : @parameter%rescueFA12 : @storage
@@ -76,7 +76,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 118; # int : @parameter%rescueFA2 : @storage
+                    PUSH int 119; # int : @parameter%rescueFA2 : @storage
                     FAILWITH;   # FAILED
                   }; # @some : @parameter%rescueFA2 : @storage
                 NIL operation; # list operation : @some : @parameter%rescueFA2 : @storage
@@ -129,7 +129,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 77; # int : @storage
+                    PUSH int 78; # int : @storage
                     FAILWITH;   # FAILED
                   }; # @some : @storage
                 NIL operation; # list operation : @some : @storage
@@ -163,7 +163,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 62; # int : list operation : @parameter%send : @storage
+                    PUSH int 63; # int : list operation : @parameter%send : @storage
                     FAILWITH;   # FAILED
                   }; # @some : list operation : @parameter%send : @storage
                 PUSH mutez 0; # mutez : @some : list operation : @parameter%send : @storage
