@@ -3,10 +3,10 @@ import smartpy as sp
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
 HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
 Poll = sp.import_script_from_url("file:common/poll.py")
-PollOutcomes = sp.import_script_from_url("file:common/poll-outcome.py")
+PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
 QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
-VoteRecord = sp.import_script_from_url("file:common/vote-record")
+VoteRecord = sp.import_script_from_url("file:common/vote-record.py")
 VoteValue = sp.import_script_from_url("file:common/vote-value.py")
 
 ################################################################
@@ -79,71 +79,9 @@ STATE_MACHINE_WAITING_FOR_BALANCE = 1
 
 ################################################################
 ################################################################
-# Poll Outcomes
-################################################################
-################################################################
-
-POLL_OUTCOME_FAILED = 0       # Did not pass voting
-POLL_OUTCOME_IN_TIMELOCK = 1  # Passed voting, is in timelock
-POLL_OUTCOME_EXECUTED = 2     # Passed voting, executed in timelock
-POLL_OUTCOME_CANCELLED = 3    # Passed voting, but cancelled from timelock
-
-################################################################
-################################################################
 # Types
 ################################################################
 ################################################################
-
-# A type representing a quorum cap. 
-# Params:
-# - lower (nat): The lower bound
-# - upper (nat): The upper bound
-QUORUM_CAP_TYPE = sp.TRecord(
-  lower = sp.TNat, 
-  upper = sp.TNat
-).layout(("lower", "upper")) 
-
-# A type recording the way an address voted.
-# Params:
-# - voteValue (nat): The Vote value
-# - level (nat): The block level the vote was cast on.
-# - votes (nat): The number of tokens voted with. 
-VOTE_RECORD_TYPE = sp.TRecord(
-  voteValue = sp.TNat,
-  level = sp.TNat,
-  votes = sp.TNat,
-).layout(("voteValue", ("level", "votes")))
-
-# A poll for a proposal.
-# Params:
-# - id (nat): An automatically assigned identifier for the poll.
-# - proposal (Proposal.PROPOSAL_TYPE): The proposal
-# - votingStart (nat): The first block of voting.
-# - votingEnd (nat): The last block of voting.
-# - yayVotes (nat): The number of yay votes.
-# - nayVotes (nat): The number of nay votes.
-# - abstainVotes (nat): The number of abstain votes.
-# - totalVotes (nat): The total number of votes.
-# - voters (set<nat>): The addresses which have voted.
-# - author (address): The author of the proposal.
-# - escrowAmount (nat): The amount of tokens escrowed for the proposal.
-# - quorum (nat): The quorum the poll needs to achieve. 
-# - quorumCap (nat): The quorum caps of the proposal.
-POLL_TYPE = sp.TRecord(
-  id = sp.TNat,
-  proposal = Proposal.PROPOSAL_TYPE,
-  votingStartBlock = sp.TNat,
-  votingEndBlock = sp.TNat,
-  yayVotes = sp.TNat,
-  nayVotes = sp.TNat,
-  abstainVotes = sp.TNat,
-  totalVotes = sp.TNat,
-  voters = sp.TMap(sp.TAddress, VOTE_RECORD_TYPE),
-  author = sp.TAddress,
-  escrowAmount = sp.TNat,
-  quorum = sp.TNat,
-  quorumCap = QUORUM_CAP_TYPE
-).layout(("id", ("proposal", ("votingStartBlock", ("votingEndBlock", ("yayVotes", ("nayVotes", ("abstainVotes", ("totalVotes", ("voters", ("author", ("escrowAmount", ("quorum", "quorumCap")))))))))))))
 
 # A item in the timelock
 # Params:
@@ -159,15 +97,6 @@ TIMELOCK_ITEM_TYPE = sp.TRecord(
   cancelBlock = sp.TNat,
   author = sp.TAddress
 ).layout(("id", ("proposal", ("endBlock", ("cancelBlock", "author")))))
-
-# A historical result of a vote.
-# Params:
-# - outcome (nat): The outcome of the poll
-# - poll (POLL_TYPE): The poll and the results.
-HISTORICAL_OUTCOME_TYPE = sp.TRecord(
-  outcome = sp.TNat,
-  poll = POLL_TYPE
-).layout(("outcome", "poll"))
 
 # Governance parameters.
 # Params:
@@ -187,7 +116,7 @@ GOVERNANCE_PARAMETERS_TYPE = sp.TRecord(
   blocksInTimelockForExecution = sp.TNat,
   blocksInTimelockForCancellation = sp.TNat,
   percentageForSuperMajority = sp.TNat,
-  quorumCap = QUORUM_CAP_TYPE
+  quorumCap = QuorumCap.QUORUM_CAP_TYPE
 ).layout(
   (
     "escrowAmount", 
@@ -252,7 +181,7 @@ class DaoContract(sp.Contract):
     communityFundAddress = Addresses.COMMUNITY_FUND_ADDRESS,
     state = STATE_MACHINE_IDLE,
     votingState = sp.none,
-    outcomes = sp.big_map(l = {}, tkey = sp.TNat, tvalue = HISTORICAL_OUTCOME_TYPE),
+    outcomes = sp.big_map(l = {}, tkey = sp.TNat, tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE),
   ):
     metadata_data = sp.bytes_of_string('{ "name": "Kolibri Governance DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
@@ -271,13 +200,13 @@ class DaoContract(sp.Contract):
         communityFundAddress = sp.TAddress,
         governanceParameters = GOVERNANCE_PARAMETERS_TYPE,
         quorum = sp.TNat,
-        poll = sp.TOption(POLL_TYPE),
+        poll = sp.TOption(Poll.POLL_TYPE),
         timelockItem = sp.TOption(TIMELOCK_ITEM_TYPE),
         nextProposalId = sp.TNat,
         state = sp.TNat,
         votingState = sp.TOption(VOTING_STATE),
         metadata = sp.TBigMap(sp.TString, sp.TBytes),
-        outcomes = sp.TBigMap(sp.TNat, HISTORICAL_OUTCOME_TYPE)
+        outcomes = sp.TBigMap(sp.TNat, HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE)
       )
     )
 
@@ -347,7 +276,7 @@ class DaoContract(sp.Contract):
         nayVotes = sp.nat(0),
         abstainVotes = sp.nat(0),
         totalVotes = sp.nat(0),
-        voters = sp.map(l = {}, tkey = sp.TAddress, tvalue = VOTE_RECORD_TYPE),
+        voters = sp.map(l = {}, tkey = sp.TAddress, tvalue = VoteRecord.VOTE_RECORD_TYPE),
         author = sp.sender,
         escrowAmount = self.data.governanceParameters.escrowAmount,
         quorum = self.data.quorum,
@@ -408,13 +337,13 @@ class DaoContract(sp.Contract):
       )
 
       self.data.outcomes[poll.value.id] = sp.record(
-        outcome = POLL_OUTCOME_IN_TIMELOCK,
+        outcome = PollOutcomes.POLL_OUTCOME_IN_TIMELOCK,
         poll = poll.value
       )
     # Otherwise update the outcomes to show a failure.  
     sp.else:
       self.data.outcomes[poll.value.id] = sp.record(
-        outcome = POLL_OUTCOME_FAILED,
+        outcome = PollOutcomes.POLL_OUTCOME_FAILED,
         poll = poll.value
       )
 
@@ -567,7 +496,7 @@ class DaoContract(sp.Contract):
     historicalOutcome = sp.local('historicalOutcome', self.data.outcomes[pollId.value])
     self.data.outcomes[pollId.value] = sp.record(
       poll = historicalOutcome.value.poll, 
-      outcome = POLL_OUTCOME_EXECUTED
+      outcome = PollOutcomes.POLL_OUTCOME_EXECUTED
     )
 
     # Clear the timelock
@@ -589,7 +518,7 @@ class DaoContract(sp.Contract):
     historicalOutcome = sp.local('historicalOutcome', self.data.outcomes[pollId.value])
     self.data.outcomes[pollId.value] = sp.record(
       poll = historicalOutcome.value.poll, 
-      outcome = POLL_OUTCOME_CANCELLED
+      outcome = PollOutcomes.POLL_OUTCOME_CANCELLED
     )
     # Clear the timelock
     self.data.timelockItem = sp.none
@@ -1654,7 +1583,7 @@ if __name__ == "__main__":
     scenario.verify(~dao.data.poll.is_some())
 
     # AND the outcome for the poll is FAILED
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_FAILED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_FAILED)
 
     # AND it was not moved to the timelock
     scenario.verify(~dao.data.timelockItem.is_some())
@@ -1729,7 +1658,7 @@ if __name__ == "__main__":
     scenario.verify(~dao.data.poll.is_some())
 
     # AND the outcome for the poll is FAILED
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_FAILED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_FAILED)
 
     # AND it was not moved to the timelock
     scenario.verify(~dao.data.timelockItem.is_some())    
@@ -1804,7 +1733,7 @@ if __name__ == "__main__":
     scenario.verify(~dao.data.poll.is_some())
 
     # AND the outcome for the poll is FAILED
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_FAILED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_FAILED)
 
     # AND it was not moved to the timelock
     scenario.verify(~dao.data.timelockItem.is_some())    
@@ -1880,7 +1809,7 @@ if __name__ == "__main__":
     scenario.verify(~dao.data.poll.is_some())
 
     # AND the outcome for the poll is IN_TIMELOCK
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_IN_TIMELOCK)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_IN_TIMELOCK)
 
     # AND the proposal was moved to the timelock
     scenario.verify(dao.data.timelockItem.is_some())    
@@ -2708,12 +2637,12 @@ if __name__ == "__main__":
       outcomes = sp.big_map(
         l = {
             pollId: sp.record(
-              outcome = POLL_OUTCOME_IN_TIMELOCK,
+              outcome = PollOutcomes.POLL_OUTCOME_IN_TIMELOCK,
               poll = poll
             )
         },
         tkey = sp.TNat,
-        tvalue = HISTORICAL_OUTCOME_TYPE,
+        tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE,
       )
     )
     scenario += dao
@@ -2732,7 +2661,7 @@ if __name__ == "__main__":
     scenario.verify(storeContract.data.storedValue == newValue)
 
     # AND the historical outcome is updated.
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_EXECUTED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_EXECUTED)
 
     # AND the timelock is empty.
     scenario.verify(~dao.data.timelockItem.is_some())
@@ -2838,12 +2767,12 @@ if __name__ == "__main__":
       outcomes = sp.big_map(
         l = {
             pollId: sp.record(
-              outcome = POLL_OUTCOME_IN_TIMELOCK,
+              outcome = PollOutcomes.POLL_OUTCOME_IN_TIMELOCK,
               poll = poll
             )
         },
         tkey = sp.TNat,
-        tvalue = HISTORICAL_OUTCOME_TYPE,
+        tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE,
       )
     )
     scenario += dao
@@ -2854,7 +2783,7 @@ if __name__ == "__main__":
     )    
 
     # AND the historical outcome is updated.
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_CANCELLED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_CANCELLED)
 
     # THEN the item is removed.
     scenario.verify(~dao.data.timelockItem.is_some())
