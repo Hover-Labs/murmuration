@@ -1,6 +1,7 @@
 import smartpy as sp
 
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
+Errors = sp.import_script_from_url("file:common/errors.py")
 HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
 Poll = sp.import_script_from_url("file:common/poll.py")
 PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
@@ -19,54 +20,6 @@ VoteValue = sp.import_script_from_url("file:common/vote-value.py")
 # For instance, a scale of 100 means the number 1.23 is represented
 # as 123.
 SCALE = 100 
-
-################################################################
-################################################################
-# Errors
-################################################################
-################################################################
-
-# There is already a poll underway.
-ERROR_POLL_UNDERWAY = "POLL_UNDERWAY"
-
-# There is not a poll available.
-ERROR_NO_POLL = "NO_POLL"
-
-# There is already a item in the timelock.
-ERROR_ITEM_IN_TIMELOCK = "ITEM_IN_TIMELOCK"
-
-# There is no item in the timelock.
-ERROR_NO_ITEM_IN_TIMELOCK = "NO_ITEM_IN_TIMELOCK"
-
-# Voting is finished
-ERROR_VOTING_FINISHED = "VOTING_FINISHED"
-
-# Voting is not finished
-ERROR_VOTING_NOT_FINISHED = "VOTING_NOT_FINISHED"
-
-# The address has already voted.
-ERROR_ALREADY_VOTED = "ALREADY_VOTED"
-
-# The given vote value was invalid.
-ERROR_BAD_VOTE_VALUE = "BAD_VOTE_VALUE"
-
-# The entry point may only be called by the proposal's author.
-ERROR_NOT_AUTHOR = "NOT_AUTHOR"
-
-# The timelock can not be executed at this time.
-ERROR_TOO_SOON = "TOO_SOON"
-
-# This method may only be called by the dao.
-ERROR_NOT_DAO = "NOT_DAO"
-
-# The contract was not in the expected state.
-ERROR_BAD_STATE = "BAD_STATE"
-
-# An unknown error occurred.
-ERROR_UNKNOWN = "UNKNOWN"
-
-# The sender was not the token contract.
-ERROR_NOT_TOKEN_CONTRACT = "NOT_TOKEN_CONTRACT"
 
 ################################################################
 ################################################################
@@ -248,7 +201,7 @@ class DaoContract(sp.Contract):
     sp.set_type(proposal, Proposal.PROPOSAL_TYPE)
     
     # Verify a poll is not under vote.
-    sp.verify(~self.data.poll.is_some(), ERROR_POLL_UNDERWAY)
+    sp.verify(~self.data.poll.is_some(), Errors.ERROR_POLL_UNDERWAY)
 
     # Escrow tokens.
     tokenContractHandle = sp.contract(
@@ -292,14 +245,14 @@ class DaoContract(sp.Contract):
     sp.set_type(unit, sp.TUnit)
 
     # Verify a poll is underway.
-    sp.verify(self.data.poll.is_some(), ERROR_NO_POLL)
+    sp.verify(self.data.poll.is_some(), Errors.ERROR_NO_POLL)
 
     # Verify the timelock is empty.
-    sp.verify(~self.data.timelockItem.is_some(), ERROR_ITEM_IN_TIMELOCK)
+    sp.verify(~self.data.timelockItem.is_some(), Errors.ERROR_ITEM_IN_TIMELOCK)
 
     # Verify voting has ended.
     poll = sp.local('poll', self.data.poll.open_some())
-    sp.verify(sp.level > poll.value.votingEndBlock, ERROR_VOTING_NOT_FINISHED)
+    sp.verify(sp.level > poll.value.votingEndBlock, Errors.ERROR_VOTING_NOT_FINISHED)
 
     # Calculate whether voting thresholds were met.
     totalOpinionatedVotes = poll.value.yayVotes + poll.value.nayVotes
@@ -374,10 +327,10 @@ class DaoContract(sp.Contract):
     sp.set_type(voteValue, sp.TNat)
 
     # Verify contract is in the correct state.
-    sp.verify(self.data.state == STATE_MACHINE_IDLE, ERROR_BAD_STATE)
+    sp.verify(self.data.state == STATE_MACHINE_IDLE, Errors.ERROR_BAD_STATE)
 
     # Verify a poll is underway.
-    sp.verify(self.data.poll.is_some(), ERROR_NO_POLL)
+    sp.verify(self.data.poll.is_some(), Errors.ERROR_NO_POLL)
 
     # Save state.
     self.data.state = STATE_MACHINE_WAITING_FOR_BALANCE
@@ -421,22 +374,22 @@ class DaoContract(sp.Contract):
     sp.set_type(returnedData, sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat))
 
     # Verify contract is in the correct state.
-    sp.verify(self.data.state == STATE_MACHINE_WAITING_FOR_BALANCE, ERROR_BAD_STATE)
+    sp.verify(self.data.state == STATE_MACHINE_WAITING_FOR_BALANCE, Errors.ERROR_BAD_STATE)
 
     # Verify sender is the token contract.
-    sp.verify(sp.sender == self.data.tokenContractAddress, ERROR_NOT_TOKEN_CONTRACT)
+    sp.verify(sp.sender == self.data.tokenContractAddress, Errors.ERROR_NOT_TOKEN_CONTRACT)
 
     # Verify returned data is the requested data.
     savedState = self.data.votingState.open_some()
-    sp.verify(savedState.address == returnedData.address, ERROR_UNKNOWN)
-    sp.verify(savedState.level == returnedData.level, ERROR_UNKNOWN)
+    sp.verify(savedState.address == returnedData.address, Errors.ERROR_UNKNOWN)
+    sp.verify(savedState.level == returnedData.level, Errors.ERROR_UNKNOWN)
 
     # Verify that the address has not already voted.
-    sp.verify(~self.data.poll.open_some().voters.contains(savedState.address), ERROR_ALREADY_VOTED)
+    sp.verify(~self.data.poll.open_some().voters.contains(savedState.address), Errors.ERROR_ALREADY_VOTED)
     
     # Verify voting has not ended.
     poll = sp.local('poll', self.data.poll.open_some())
-    sp.verify(sp.level <= self.data.poll.open_some().votingEndBlock, ERROR_VOTING_FINISHED)
+    sp.verify(sp.level <= self.data.poll.open_some().votingEndBlock, Errors.ERROR_VOTING_FINISHED)
 
     # Retrieve old poll for mutation. 
     newPoll = sp.local('newPoll', self.data.poll.open_some())
@@ -459,7 +412,7 @@ class DaoContract(sp.Contract):
         sp.if savedState.voteValue == VoteValue.ABSTAIN:
           newPoll.value.abstainVotes += returnedData.result
         sp.else:
-          sp.failwith(ERROR_BAD_VOTE_VALUE)
+          sp.failwith(Errors.ERROR_BAD_VOTE_VALUE)
 
     # Update to new poll
     self.data.poll = sp.some(newPoll.value)
@@ -478,13 +431,13 @@ class DaoContract(sp.Contract):
     sp.set_type(unit, sp.TUnit)
 
     # Verify an item is in the timelock
-    sp.verify(self.data.timelockItem.is_some(), ERROR_NO_ITEM_IN_TIMELOCK)
+    sp.verify(self.data.timelockItem.is_some(), Errors.ERROR_NO_ITEM_IN_TIMELOCK)
 
     # Verify the sender is the author.
-    sp.verify(sp.sender == self.data.timelockItem.open_some().author, ERROR_NOT_AUTHOR)
+    sp.verify(sp.sender == self.data.timelockItem.open_some().author, Errors.ERROR_NOT_AUTHOR)
 
     # Verify the length of blocks have passed.
-    sp.verify(sp.level > self.data.timelockItem.open_some().endBlock, ERROR_TOO_SOON)
+    sp.verify(sp.level > self.data.timelockItem.open_some().endBlock, Errors.ERROR_TOO_SOON)
 
     # Execute the timelock
     operations = self.data.timelockItem.open_some().proposal.proposalLambda(sp.unit)
@@ -508,10 +461,10 @@ class DaoContract(sp.Contract):
     sp.set_type(unit, sp.TUnit)
 
     # Verify an item is in the timelock
-    sp.verify(self.data.timelockItem.is_some(), ERROR_NO_ITEM_IN_TIMELOCK)
+    sp.verify(self.data.timelockItem.is_some(), Errors.ERROR_NO_ITEM_IN_TIMELOCK)
 
     # Verify the length of blocks have passed.
-    sp.verify(sp.level >= self.data.timelockItem.open_some().cancelBlock, ERROR_TOO_SOON)
+    sp.verify(sp.level >= self.data.timelockItem.open_some().cancelBlock, Errors.ERROR_TOO_SOON)
 
     # Update the historical outcomes.
     pollId = sp.local('pollId', self.data.timelockItem.open_some().id)
@@ -534,7 +487,7 @@ class DaoContract(sp.Contract):
     sp.set_type(newGovernanceParameters, GOVERNANCE_PARAMETERS_TYPE)
 
     # Only the DAO can change its own parameters.
-    sp.verify(sp.sender == sp.self_address, ERROR_NOT_DAO)
+    sp.verify(sp.sender == sp.self_address, Errors.ERROR_NOT_DAO)
 
     # Update parameters.
     self.data.governanceParameters = newGovernanceParameters
