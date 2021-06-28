@@ -1,6 +1,7 @@
 import smartpy as sp
 
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
+PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
 VoteValue = sp.import_script_from_url("file:common/vote-value.py")
 
@@ -71,17 +72,6 @@ ERROR_NOT_TOKEN_CONTRACT = "NOT_TOKEN_CONTRACT"
 
 STATE_MACHINE_IDLE = 0
 STATE_MACHINE_WAITING_FOR_BALANCE = 1
-
-################################################################
-################################################################
-# Poll Outcomes
-################################################################
-################################################################
-
-POLL_OUTCOME_FAILED = 0       # Did not pass voting
-POLL_OUTCOME_IN_TIMELOCK = 1  # Passed voting, is in timelock
-POLL_OUTCOME_EXECUTED = 2     # Passed voting, executed in timelock
-POLL_OUTCOME_CANCELLED = 3    # Passed voting, but cancelled from timelock
 
 ################################################################
 ################################################################
@@ -403,13 +393,13 @@ class DaoContract(sp.Contract):
       )
 
       self.data.outcomes[poll.value.id] = sp.record(
-        outcome = POLL_OUTCOME_IN_TIMELOCK,
+        outcome = PollOutcomes.POLL_OUTCOME_IN_TIMELOCK,
         poll = poll.value
       )
     # Otherwise update the outcomes to show a failure.  
     sp.else:
       self.data.outcomes[poll.value.id] = sp.record(
-        outcome = POLL_OUTCOME_FAILED,
+        outcome = PollOutcomes.POLL_OUTCOME_FAILED,
         poll = poll.value
       )
 
@@ -562,7 +552,7 @@ class DaoContract(sp.Contract):
     historicalOutcome = sp.local('historicalOutcome', self.data.outcomes[pollId.value])
     self.data.outcomes[pollId.value] = sp.record(
       poll = historicalOutcome.value.poll, 
-      outcome = POLL_OUTCOME_EXECUTED
+      outcome = PollOutcomes.POLL_OUTCOME_EXECUTED
     )
 
     # Clear the timelock
@@ -584,7 +574,7 @@ class DaoContract(sp.Contract):
     historicalOutcome = sp.local('historicalOutcome', self.data.outcomes[pollId.value])
     self.data.outcomes[pollId.value] = sp.record(
       poll = historicalOutcome.value.poll, 
-      outcome = POLL_OUTCOME_CANCELLED
+      outcome = PollOutcomes.POLL_OUTCOME_CANCELLED
     )
     # Clear the timelock
     self.data.timelockItem = sp.none
@@ -1649,7 +1639,7 @@ if __name__ == "__main__":
     scenario.verify(~dao.data.poll.is_some())
 
     # AND the outcome for the poll is FAILED
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_FAILED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_FAILED)
 
     # AND it was not moved to the timelock
     scenario.verify(~dao.data.timelockItem.is_some())
@@ -1724,7 +1714,7 @@ if __name__ == "__main__":
     scenario.verify(~dao.data.poll.is_some())
 
     # AND the outcome for the poll is FAILED
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_FAILED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_FAILED)
 
     # AND it was not moved to the timelock
     scenario.verify(~dao.data.timelockItem.is_some())    
@@ -1799,7 +1789,7 @@ if __name__ == "__main__":
     scenario.verify(~dao.data.poll.is_some())
 
     # AND the outcome for the poll is FAILED
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_FAILED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_FAILED)
 
     # AND it was not moved to the timelock
     scenario.verify(~dao.data.timelockItem.is_some())    
@@ -1875,7 +1865,7 @@ if __name__ == "__main__":
     scenario.verify(~dao.data.poll.is_some())
 
     # AND the outcome for the poll is IN_TIMELOCK
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_IN_TIMELOCK)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_IN_TIMELOCK)
 
     # AND the proposal was moved to the timelock
     scenario.verify(dao.data.timelockItem.is_some())    
@@ -2703,7 +2693,7 @@ if __name__ == "__main__":
       outcomes = sp.big_map(
         l = {
             pollId: sp.record(
-              outcome = POLL_OUTCOME_IN_TIMELOCK,
+              outcome = PollOutcomes.POLL_OUTCOME_IN_TIMELOCK,
               poll = poll
             )
         },
@@ -2727,7 +2717,7 @@ if __name__ == "__main__":
     scenario.verify(storeContract.data.storedValue == newValue)
 
     # AND the historical outcome is updated.
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_EXECUTED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_EXECUTED)
 
     # AND the timelock is empty.
     scenario.verify(~dao.data.timelockItem.is_some())
@@ -2833,7 +2823,7 @@ if __name__ == "__main__":
       outcomes = sp.big_map(
         l = {
             pollId: sp.record(
-              outcome = POLL_OUTCOME_IN_TIMELOCK,
+              outcome = PollOutcomes.POLL_OUTCOME_IN_TIMELOCK,
               poll = poll
             )
         },
@@ -2849,7 +2839,7 @@ if __name__ == "__main__":
     )    
 
     # AND the historical outcome is updated.
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_CANCELLED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_CANCELLED)
 
     # THEN the item is removed.
     scenario.verify(~dao.data.timelockItem.is_some())
