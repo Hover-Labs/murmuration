@@ -1,12 +1,10 @@
 import smartpy as sp
 
 Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
-HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
 Poll = sp.import_script_from_url("file:common/poll.py")
-PollOutcomes = sp.import_script_from_url("file:common/poll-outcome.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
 QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
-VoteRecord = sp.import_script_from_url("file:common/vote-record")
+VoteRecord = sp.import_script_from_url("file:common/vote-record.py")
 
 ################################################################
 ################################################################
@@ -318,6 +316,8 @@ if __name__ == "__main__":
   Dummy = sp.import_script_from_url("file:./test-helpers/dummy.py")
   FA12 = sp.import_script_from_url("file:./test-helpers/fa12.py")
   FA2 = sp.import_script_from_url("file:./test-helpers/fa2.py")
+  HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
+  PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
   Store = sp.import_script_from_url("file:test-helpers/store.py")
   Token = sp.import_script_from_url("file:./token.py")
   VoteValue = sp.import_script_from_url("file:common/vote-value.py")
@@ -1195,12 +1195,12 @@ if __name__ == "__main__":
       outcomes = sp.big_map(
         l = {
             pollId: sp.record(
-              outcome = POLL_OUTCOME_IN_TIMELOCK,
+              outcome = PollOutcomes.POLL_OUTCOME_IN_TIMELOCK,
               poll = poll
             )
         },
         tkey = sp.TNat,
-        tvalue = HISTORICAL_OUTCOME_TYPE,
+        tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE,
       )
     )
     scenario += dao
@@ -1236,7 +1236,7 @@ if __name__ == "__main__":
     scenario.verify(storeContract.data.storedValue == newValue)
 
     # AND the historical outcome is updated.
-    scenario.verify(dao.data.outcomes[pollId].outcome == POLL_OUTCOME_EXECUTED)
+    scenario.verify(dao.data.outcomes[pollId].outcome == PollOutcomes.POLL_OUTCOME_EXECUTED)
 
     # AND the timelock is empty.
     scenario.verify(~dao.data.timelockItem.is_some())
