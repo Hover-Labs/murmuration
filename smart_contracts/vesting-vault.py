@@ -1238,6 +1238,123 @@ if __name__ == "__main__":
     # AND the timelock is empty.
     scenario.verify(~dao.data.timelockItem.is_some())
 
+
+  @sp.add_test(name="executeTimelock - fails if not called by owner")
+  def test():
+    scenario = sp.test_scenario()
+
+    # GIVEN a token contract
+    token = Token.FA12(
+      admin = Addresses.TOKEN_ADMIN_ADDRESS,
+    )
+    scenario += token
+
+    # AND a vesting vault contract
+    amountPerBlock = 1
+    startBlock = 0
+    owner = Addresses.TOKEN_RECIPIENT
+    vault = VestingVault(
+      amountPerBlock = amountPerBlock,
+      daoContractAddress = Addresses.DAO_ADDRESS, # Updated later
+      startBlock = startBlock,
+      owner = owner,
+      tokenContractAddress = token.address
+    )
+    scenario += vault
+
+    # AND a store value contract with the dao as the admin.
+    storeContract = Store.StoreValueContract(value = 0, admin = Addresses.TOKEN_ADMIN_ADDRESS)
+    scenario += storeContract
+
+    # AND an item in the timelock
+    newValue = sp.nat(3)
+    def updateLambda(unitParam):
+      sp.set_type(unitParam, sp.TUnit)
+      storeContractHandle = sp.contract(sp.TNat, storeContract.address, 'replace').open_some()
+      sp.result([sp.transfer_operation(newValue, sp.mutez(0), storeContractHandle)])    
+
+    pollId = sp.nat(0)
+    endBlock = sp.nat(10)
+    cancelBlock = sp.nat(20)
+    timelockItem = sp.record(
+      id = pollId,
+      proposal = sp.record(
+        title = 'timelocked prop',
+        descriptionLink = 'ipfs://xyz',
+        descriptionHash = "xyz123",
+        proposalLambda = updateLambda
+      ),
+      endBlock = endBlock,
+      cancelBlock = cancelBlock,
+      author = vault.address,
+    )
+
+    poll = sp.record(
+      id = pollId,
+      proposal = sp.record(
+        title = "timelocked prop",
+        descriptionLink = 'ipfs://xyz',
+        descriptionHash = "xyz123",
+        proposalLambda = sp.build_lambda(lambda x: sp.list(l = [], t = sp.TOperation))
+      ),
+      votingStartBlock = sp.nat(1),
+      votingEndBlock = sp.nat(5),
+      yayVotes = sp.nat(100),
+      nayVotes = sp.nat(0),
+      abstainVotes = sp.nat(0),
+      totalVotes = sp.nat(100),
+      voters = {},
+      author = vault.address,
+      escrowAmount = sp.nat(2),
+      quorum = sp.nat(100),
+      quorumCap = sp.record(lower = sp.nat(0), upper = sp.nat(1000))
+    )
+
+    # AND a dao contract with the item.
+    dao = Dao.DaoContract(
+      timelockItem = sp.some(timelockItem),
+      outcomes = sp.big_map(
+        l = {
+            pollId: sp.record(
+              outcome = PollOutcomes.POLL_OUTCOME_IN_TIMELOCK,
+              poll = poll
+            )
+        },
+        tkey = sp.TNat,
+        tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE,
+      )
+    )
+    scenario += dao
+
+    # AND the store contract has the dao as the admin.
+    scenario += storeContract.setAdmin(dao.address)
+
+    # AND the vault is set to point at the DAO
+    setDaoParam = sp.record(newDaoContractAddress = dao.address)
+    scenario += vault.setDaoContractAddress(setDaoParam).run(
+      sender = Addresses.GOVERNOR_ADDRESS
+    )
+
+    # AND the vault is funded.
+    tokensInVault = sp.nat(100)
+    scenario += token.mint(
+      sp.record(
+        address = vault.address,
+        value = tokensInVault
+      )
+    ).run(
+      sender = Addresses.TOKEN_ADMIN_ADDRESS,
+      level = 0
+    )
+
+    # WHEN executeTimelock is called by someone other than the owner
+    # THEN the call fails.
+    scenario += vault.executeTimelock(sp.unit).run(
+      sender = Addresses.NULL_ADDRESS,
+      level = endBlock + 1,
+      valid = False
+    )    
+
   ################################################################
   # rotateOwner
   ################################################################
