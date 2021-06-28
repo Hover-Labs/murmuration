@@ -1,6 +1,7 @@
 import smartpy as sp
 
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
+Poll = sp.import_script_from_url("file:common/poll.py")
 PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
 QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
@@ -81,37 +82,6 @@ STATE_MACHINE_WAITING_FOR_BALANCE = 1
 ################################################################
 ################################################################
 
-# A poll for a proposal.
-# Params:
-# - id (nat): An automatically assigned identifier for the poll.
-# - proposal (Proposal.PROPOSAL_TYPE): The proposal
-# - votingStart (nat): The first block of voting.
-# - votingEnd (nat): The last block of voting.
-# - yayVotes (nat): The number of yay votes.
-# - nayVotes (nat): The number of nay votes.
-# - abstainVotes (nat): The number of abstain votes.
-# - totalVotes (nat): The total number of votes.
-# - voters (set<nat>): The addresses which have voted.
-# - author (address): The author of the proposal.
-# - escrowAmount (nat): The amount of tokens escrowed for the proposal.
-# - quorum (nat): The quorum the poll needs to achieve. 
-# - quorumCap (nat): The quorum caps of the proposal.
-POLL_TYPE = sp.TRecord(
-  id = sp.TNat,
-  proposal = Proposal.PROPOSAL_TYPE,
-  votingStartBlock = sp.TNat,
-  votingEndBlock = sp.TNat,
-  yayVotes = sp.TNat,
-  nayVotes = sp.TNat,
-  abstainVotes = sp.TNat,
-  totalVotes = sp.TNat,
-  voters = sp.TMap(sp.TAddress, VoteRecord.VOTE_RECORD_TYPE),
-  author = sp.TAddress,
-  escrowAmount = sp.TNat,
-  quorum = sp.TNat,
-  quorumCap = QuorumCap.QUORUM_CAP_TYPE
-).layout(("id", ("proposal", ("votingStartBlock", ("votingEndBlock", ("yayVotes", ("nayVotes", ("abstainVotes", ("totalVotes", ("voters", ("author", ("escrowAmount", ("quorum", "quorumCap")))))))))))))
-
 # A item in the timelock
 # Params:
 # - id (nat): An automatically assigned identifier for the timelock item. This is the same ID that is used in polls.
@@ -130,10 +100,10 @@ TIMELOCK_ITEM_TYPE = sp.TRecord(
 # A historical result of a vote.
 # Params:
 # - outcome (nat): The outcome of the poll
-# - poll (POLL_TYPE): The poll and the results.
+# - poll (Poll.POLL_TYPE): The poll and the results.
 HISTORICAL_OUTCOME_TYPE = sp.TRecord(
   outcome = sp.TNat,
-  poll = POLL_TYPE
+  poll = Poll.POLL_TYPE
 ).layout(("outcome", "poll"))
 
 # Governance parameters.
@@ -238,7 +208,7 @@ class DaoContract(sp.Contract):
         communityFundAddress = sp.TAddress,
         governanceParameters = GOVERNANCE_PARAMETERS_TYPE,
         quorum = sp.TNat,
-        poll = sp.TOption(POLL_TYPE),
+        poll = sp.TOption(Poll.POLL_TYPE),
         timelockItem = sp.TOption(TIMELOCK_ITEM_TYPE),
         nextProposalId = sp.TNat,
         state = sp.TNat,
