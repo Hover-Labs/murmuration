@@ -3,6 +3,7 @@ import smartpy as sp
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
 PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
+QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
 VoteValue = sp.import_script_from_url("file:common/vote-value.py")
 
 ################################################################
@@ -79,14 +80,6 @@ STATE_MACHINE_WAITING_FOR_BALANCE = 1
 ################################################################
 ################################################################
 
-# A type representing a quorum cap. 
-# Params:
-# - lower (nat): The lower bound
-# - upper (nat): The upper bound
-QUORUM_CAP_TYPE = sp.TRecord(
-  lower = sp.TNat, 
-  upper = sp.TNat
-).layout(("lower", "upper")) 
 
 # A type recording the way an address voted.
 # Params:
@@ -127,7 +120,7 @@ POLL_TYPE = sp.TRecord(
   author = sp.TAddress,
   escrowAmount = sp.TNat,
   quorum = sp.TNat,
-  quorumCap = QUORUM_CAP_TYPE
+  quorumCap = QuorumCap.QUORUM_CAP_TYPE
 ).layout(("id", ("proposal", ("votingStartBlock", ("votingEndBlock", ("yayVotes", ("nayVotes", ("abstainVotes", ("totalVotes", ("voters", ("author", ("escrowAmount", ("quorum", "quorumCap")))))))))))))
 
 # A item in the timelock
@@ -172,7 +165,7 @@ GOVERNANCE_PARAMETERS_TYPE = sp.TRecord(
   blocksInTimelockForExecution = sp.TNat,
   blocksInTimelockForCancellation = sp.TNat,
   percentageForSuperMajority = sp.TNat,
-  quorumCap = QUORUM_CAP_TYPE
+  quorumCap = QuorumCap.QUORUM_CAP_TYPE
 ).layout(
   (
     "escrowAmount", 
