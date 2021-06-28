@@ -235,7 +235,7 @@ class VestingVault(sp.Contract):
       ).layout(("escrowAmount", "proposal")))
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "Not owner")      
+      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")      
 
       # Send approvals.
       # This function sends two changes:
@@ -274,7 +274,7 @@ class VestingVault(sp.Contract):
       sp.set_type(voteValue, sp.TNat)
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "NOT_GOVERNOR")
+      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")
 
       # Send a vote request
       handle = sp.contract(
@@ -290,7 +290,7 @@ class VestingVault(sp.Contract):
       sp.set_type(unit, sp.TUnit)
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "NOT_GOVERNOR")            
+      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")            
 
       # Send an execution request
       handle = sp.contract(
