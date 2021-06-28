@@ -1,7 +1,12 @@
 import smartpy as sp
 
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
+HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
+Poll = sp.import_script_from_url("file:common/poll.py")
+PollOutcomes = sp.import_script_from_url("file:common/poll-outcome.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
+QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
+VoteRecord = sp.import_script_from_url("file:common/vote-record")
 VoteValue = sp.import_script_from_url("file:common/vote-value.py")
 
 ################################################################

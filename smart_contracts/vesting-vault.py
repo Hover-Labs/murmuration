@@ -1,90 +1,18 @@
 import smartpy as sp
 
-# TODO(keefertaylor): Dedupe me.
-
+Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
+HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
+Poll = sp.import_script_from_url("file:common/poll.py")
+PollOutcomes = sp.import_script_from_url("file:common/poll-outcome.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
-# A type recording the way an address voted.
-# Params:
-# - voteValue (nat): The Vote value
-# - level (nat): The block level the vote was cast on.
-# - votes (nat): The number of tokens voted with. 
-VOTE_RECORD_TYPE = sp.TRecord(
-  voteValue = sp.TNat,
-  level = sp.TNat,
-  votes = sp.TNat,
-).layout(("voteValue", ("level", "votes")))
-
-
-# A type representing a quorum cap. 
-# Params:
-# - lower (nat): The lower bound
-# - upper (nat): The upper bound
-QUORUM_CAP_TYPE = sp.TRecord(
-  lower = sp.TNat, 
-  upper = sp.TNat
-).layout(("lower", "upper")) 
-
-
-################################################################
-################################################################
-# Poll Outcomes
-################################################################
-################################################################
-
-POLL_OUTCOME_FAILED = 0       # Did not pass voting
-POLL_OUTCOME_IN_TIMELOCK = 1  # Passed voting, is in timelock
-POLL_OUTCOME_EXECUTED = 2     # Passed voting, executed in timelock
-POLL_OUTCOME_CANCELLED = 3    # Passed voting, but cancelled from timelock
-
-# A poll for a proposal.
-# Params:
-# - id (nat): An automatically assigned identifier for the poll.
-# - proposal (Proposal.PROPOSAL_TYPE): The proposal
-# - votingStart (nat): The first block of voting.
-# - votingEnd (nat): The last block of voting.
-# - yayVotes (nat): The number of yay votes.
-# - nayVotes (nat): The number of nay votes.
-# - abstainVotes (nat): The number of abstain votes.
-# - totalVotes (nat): The total number of votes.
-# - voters (set<nat>): The addresses which have voted.
-# - author (address): The author of the proposal.
-# - escrowAmount (nat): The amount of tokens escrowed for the proposal.
-# - quorum (nat): The quorum the poll needs to achieve. 
-# - quorumCap (nat): The quorum caps of the proposal.
-POLL_TYPE = sp.TRecord(
-  id = sp.TNat,
-  proposal = Proposal.PROPOSAL_TYPE,
-  votingStartBlock = sp.TNat,
-  votingEndBlock = sp.TNat,
-  yayVotes = sp.TNat,
-  nayVotes = sp.TNat,
-  abstainVotes = sp.TNat,
-  totalVotes = sp.TNat,
-  voters = sp.TMap(sp.TAddress, VOTE_RECORD_TYPE),
-  author = sp.TAddress,
-  escrowAmount = sp.TNat,
-  quorum = sp.TNat,
-  quorumCap = QUORUM_CAP_TYPE
-).layout(("id", ("proposal", ("votingStartBlock", ("votingEndBlock", ("yayVotes", ("nayVotes", ("abstainVotes", ("totalVotes", ("voters", ("author", ("escrowAmount", ("quorum", "quorumCap")))))))))))))
-
-
-# A historical result of a vote.
-# Params:
-# - outcome (nat): The outcome of the poll
-# - poll (POLL_TYPE): The poll and the results.
-HISTORICAL_OUTCOME_TYPE = sp.TRecord(
-  outcome = sp.TNat,
-  poll = POLL_TYPE
-).layout(("outcome", "poll"))
+QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
+VoteRecord = sp.import_script_from_url("file:common/vote-record")
 
 ################################################################
 ################################################################
 # Contract
 ################################################################
 ################################################################
-
-Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
-Proposal = sp.import_script_from_url("file:./common/proposal.py")
 
 # A simple vesting contract.
 class VestingVault(sp.Contract):
