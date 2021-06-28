@@ -1,6 +1,7 @@
 import smartpy as sp
 
 Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
+HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
 Poll = sp.import_script_from_url("file:common/poll.py")
 PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
@@ -97,15 +98,6 @@ TIMELOCK_ITEM_TYPE = sp.TRecord(
   author = sp.TAddress
 ).layout(("id", ("proposal", ("endBlock", ("cancelBlock", "author")))))
 
-# A historical result of a vote.
-# Params:
-# - outcome (nat): The outcome of the poll
-# - poll (Poll.POLL_TYPE): The poll and the results.
-HISTORICAL_OUTCOME_TYPE = sp.TRecord(
-  outcome = sp.TNat,
-  poll = Poll.POLL_TYPE
-).layout(("outcome", "poll"))
-
 # Governance parameters.
 # Params:
 # - escrowAmount (nat): The number of tokens to escrow when a proposal is submitted.
@@ -189,7 +181,7 @@ class DaoContract(sp.Contract):
     communityFundAddress = Addresses.COMMUNITY_FUND_ADDRESS,
     state = STATE_MACHINE_IDLE,
     votingState = sp.none,
-    outcomes = sp.big_map(l = {}, tkey = sp.TNat, tvalue = HISTORICAL_OUTCOME_TYPE),
+    outcomes = sp.big_map(l = {}, tkey = sp.TNat, tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE),
   ):
     metadata_data = sp.bytes_of_string('{ "name": "Kolibri Governance DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
@@ -214,7 +206,7 @@ class DaoContract(sp.Contract):
         state = sp.TNat,
         votingState = sp.TOption(VOTING_STATE),
         metadata = sp.TBigMap(sp.TString, sp.TBytes),
-        outcomes = sp.TBigMap(sp.TNat, HISTORICAL_OUTCOME_TYPE)
+        outcomes = sp.TBigMap(sp.TNat, HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE)
       )
     )
 
@@ -2650,7 +2642,7 @@ if __name__ == "__main__":
             )
         },
         tkey = sp.TNat,
-        tvalue = HISTORICAL_OUTCOME_TYPE,
+        tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE,
       )
     )
     scenario += dao
@@ -2780,7 +2772,7 @@ if __name__ == "__main__":
             )
         },
         tkey = sp.TNat,
-        tvalue = HISTORICAL_OUTCOME_TYPE,
+        tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE,
       )
     )
     scenario += dao
