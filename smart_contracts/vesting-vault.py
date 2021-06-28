@@ -1,13 +1,13 @@
 import smartpy as sp
 
-Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
-Proposal = sp.import_script_from_url("file:common/proposal.py")
-
 ################################################################
 ################################################################
 # Contract
 ################################################################
 ################################################################
+
+Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
+Proposal = sp.import_script_from_url("file:common/proposal.py")
 
 # A simple vesting contract.
 class VestingVault(sp.Contract):
