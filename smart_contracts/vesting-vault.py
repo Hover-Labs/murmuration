@@ -115,7 +115,7 @@ class VestingVault(sp.Contract):
       ).layout(("tokenContractAddress", ("amount", "destination"))))
 
       # Verify the requester is the owner.
-      sp.verify(sp.sender == self.data.owner, "Not owner")
+      sp.verify(sp.sender == self.data.owner, "NOT_OWNER")
 
       # Verify the request is not for the vesting tokens.
       sp.verify(params.tokenContractAddress != self.data.tokenContractAddress, "USE_WITHDRAW_INSTEAD")
