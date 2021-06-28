@@ -4,6 +4,7 @@ Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
 PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
 Proposal = sp.import_script_from_url("file:common/proposal.py")
 QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
+VoteRecord = sp.import_script_from_url("file:common/vote-record.py")
 VoteValue = sp.import_script_from_url("file:common/vote-value.py")
 
 ################################################################
@@ -80,18 +81,6 @@ STATE_MACHINE_WAITING_FOR_BALANCE = 1
 ################################################################
 ################################################################
 
-
-# A type recording the way an address voted.
-# Params:
-# - voteValue (nat): The Vote value
-# - level (nat): The block level the vote was cast on.
-# - votes (nat): The number of tokens voted with. 
-VOTE_RECORD_TYPE = sp.TRecord(
-  voteValue = sp.TNat,
-  level = sp.TNat,
-  votes = sp.TNat,
-).layout(("voteValue", ("level", "votes")))
-
 # A poll for a proposal.
 # Params:
 # - id (nat): An automatically assigned identifier for the poll.
@@ -116,7 +105,7 @@ POLL_TYPE = sp.TRecord(
   nayVotes = sp.TNat,
   abstainVotes = sp.TNat,
   totalVotes = sp.TNat,
-  voters = sp.TMap(sp.TAddress, VOTE_RECORD_TYPE),
+  voters = sp.TMap(sp.TAddress, VoteRecord.VOTE_RECORD_TYPE),
   author = sp.TAddress,
   escrowAmount = sp.TNat,
   quorum = sp.TNat,
@@ -325,7 +314,7 @@ class DaoContract(sp.Contract):
         nayVotes = sp.nat(0),
         abstainVotes = sp.nat(0),
         totalVotes = sp.nat(0),
-        voters = sp.map(l = {}, tkey = sp.TAddress, tvalue = VOTE_RECORD_TYPE),
+        voters = sp.map(l = {}, tkey = sp.TAddress, tvalue = VoteRecord.VOTE_RECORD_TYPE),
         author = sp.sender,
         escrowAmount = self.data.governanceParameters.escrowAmount,
         quorum = self.data.quorum,
