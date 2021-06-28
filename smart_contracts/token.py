@@ -26,7 +26,7 @@ class FA12(sp.Contract):
                 "name": sp.bytes_of_string('Kolibri DAO Token'),
                 "decimals": sp.bytes('0x3138'), # 18
                 "symbol": sp.bytes_of_string('kDAO'),
-                "icon": sp.bytes('0x2068747470733a2f2f6b6f6c696272692d646174612e73332e616d617a6f6e6177732e636f6d2f6c6f676f2e706e67') # https://kolibri-data.s3.amazonaws.com/logo.png
+                "icon": sp.bytes_of_string('https://kolibri-data.s3.amazonaws.com/kdao-logo.png'),
             },
             tkey = sp.TString,
             tvalue = sp.TBytes
