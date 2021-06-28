@@ -34,7 +34,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 299; # int : @storage
+                    PUSH int 296; # int : @storage
                     FAILWITH;   # FAILED
                   }; # @some : @storage
                 NIL operation; # list operation : @some : @storage
@@ -70,7 +70,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 247; # int : list operation : @parameter%propose : @storage
+                    PUSH int 244; # int : list operation : @parameter%propose : @storage
                     FAILWITH;   # FAILED
                   }; # @some : list operation : @parameter%propose : @storage
                 PUSH mutez 0; # mutez : @some : list operation : @parameter%propose : @storage
@@ -89,7 +89,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 247; # int : list operation : @parameter%propose : @storage
+                    PUSH int 244; # int : list operation : @parameter%propose : @storage
                     FAILWITH;   # FAILED
                   }; # @some : list operation : @parameter%propose : @storage
                 PUSH mutez 0; # mutez : @some : list operation : @parameter%propose : @storage
@@ -111,7 +111,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 266; # int : list operation : @parameter%propose : @storage
+                    PUSH int 263; # int : list operation : @parameter%propose : @storage
                     FAILWITH;   # FAILED
                   }; # @some : list operation : @parameter%propose : @storage
                 PUSH mutez 0; # mutez : @some : list operation : @parameter%propose : @storage
@@ -165,7 +165,7 @@ code
                 IF_SOME
                   {}
                   {
-                    PUSH int 127; # int : @parameter%rescueFA12 : @storage
+                    PUSH int 124; # int : @parameter%rescueFA12 : @storage
                     FAILWITH;   # FAILED
                   }; # @some : @parameter%rescueFA12 : @storage
                 NIL operation; # list operation : @some : @parameter%rescueFA12 : @storage
@@ -226,7 +226,7 @@ code
                     IF_SOME
                       {}
                       {
-                        PUSH int 157; # int : @parameter%rescueFA2 : @storage
+                        PUSH int 154; # int : @parameter%rescueFA2 : @storage
                         FAILWITH;   # FAILED
                       }; # @some : @parameter%rescueFA2 : @storage
                     NIL operation; # list operation : @some : @parameter%rescueFA2 : @storage
@@ -275,7 +275,7 @@ code
                     IF_SOME
                       {}
                       {
-                        PUSH int 109; # int : @storage
+                        PUSH int 106; # int : @storage
                         FAILWITH;   # FAILED
                       }; # @some : @storage
                     NIL operation; # list operation : @some : @storage
@@ -419,7 +419,7 @@ code
                     IF_SOME
                       {}
                       {
-                        PUSH int 283; # int : list operation : @parameter%vote : @storage
+                        PUSH int 280; # int : list operation : @parameter%vote : @storage
                         FAILWITH;   # FAILED
                       }; # @some : list operation : @parameter%vote : @storage
                     PUSH mutez 0; # mutez : @some : list operation : @parameter%vote : @storage
@@ -461,7 +461,7 @@ code
                     IF_SOME
                       {}
                       {
-                        PUSH int 75; # int : nat : @parameter%withdraw : @storage
+                        PUSH int 72; # int : nat : @parameter%withdraw : @storage
                         FAILWITH;   # FAILED
                       }; # @some : nat : @parameter%withdraw : @storage
                     MUL;        # nat : @parameter%withdraw : @storage
@@ -502,7 +502,7 @@ code
                     IF_SOME
                       {}
                       {
-                        PUSH int 84; # int : list operation : @parameter%withdraw : pair (pair (pair nat nat) (pair (address %daoContractAddress) (address %governorAddress))) (pair (pair (big_map %metadata string bytes) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
+                        PUSH int 81; # int : list operation : @parameter%withdraw : pair (pair (pair nat nat) (pair (address %daoContractAddress) (address %governorAddress))) (pair (pair (big_map %metadata string bytes) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
                         FAILWITH;   # FAILED
                       }; # @some : list operation : @parameter%withdraw : pair (pair (pair nat nat) (pair (address %daoContractAddress) (address %governorAddress))) (pair (pair (big_map %metadata string bytes) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
                     PUSH mutez 0; # mutez : @some : list operation : @parameter%withdraw : pair (pair (pair nat nat) (pair (address %daoContractAddress) (address %governorAddress))) (pair (pair (big_map %metadata string bytes) (address %owner)) (pair (nat %startBlock) (address %tokenContractAddress)))
