@@ -111,7 +111,7 @@ if __name__ == "__main__":
     )
 
     # THEN the recipient received the tokens.
-    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == maxTokensPerDrip)
+    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == maxTokensPerDrip)
 
   @sp.add_test(name="Drip - fails when called with more than max amount")
   def test():

@@ -509,7 +509,7 @@ if __name__ == "__main__":
     )
 
     # THEN the recipient received the tokens.
-    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == numberOfTokens)
+    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == numberOfTokens)
 
   @sp.add_test(name="send - fails if not called by governor")
   def test():

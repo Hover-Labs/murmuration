@@ -53,10 +53,12 @@ class FA12(sp.Contract):
 
         self.init(
             balances = sp.big_map(
-                tvalue = sp.TRecord(
-                    approvals = sp.TMap(sp.TAddress, sp.TNat), 
-                    balance = sp.TNat
-                )
+                tkey = sp.TAddress,
+                tvalue = sp.TNat,
+            ),
+            approvals = sp.big_map(
+                tkey = sp.TAddress,
+                tvalue = sp.TMap(sp.TAddress, sp.TNat)
             ),
             # CHANGED: Add Checkpoints
             checkpoints = sp.big_map(
@@ -195,17 +197,17 @@ class FA12(sp.Contract):
         sp.verify(self.is_administrator(sp.sender) |
             (~self.is_paused() &
                 ((params.from_ == sp.sender) |
-                 (self.data.balances[params.from_].approvals[sp.sender] >= params.value))), Errors.ERROR_NOT_ALLOWED)
+                 (self.data.approvals[params.from_][sp.sender] >= params.value))), Errors.ERROR_NOT_ALLOWED)
         self.addAddressIfNecessary(params.to_)
 
         # CHANGED: Add from address as well.
         self.addAddressIfNecessary(params.from_)
 
-        sp.verify(self.data.balances[params.from_].balance >= params.value, Errors.ERROR_LOW_BALANCE)
-        self.data.balances[params.from_].balance = sp.as_nat(self.data.balances[params.from_].balance - params.value)
-        self.data.balances[params.to_].balance += params.value
+        sp.verify(self.data.balances[params.from_] >= params.value, Errors.ERROR_LOW_BALANCE)
+        self.data.balances[params.from_] = sp.as_nat(self.data.balances[params.from_] - params.value)
+        self.data.balances[params.to_] += params.value
         sp.if (params.from_ != sp.sender) & (~self.is_administrator(sp.sender)):
-            self.data.balances[params.from_].approvals[sp.sender] = sp.as_nat(self.data.balances[params.from_].approvals[sp.sender] - params.value)
+            self.data.approvals[params.from_][sp.sender] = sp.as_nat(self.data.approvals[params.from_][sp.sender] - params.value)
             
         # CHANGED: Write checkpoints.
         # Write a checkpoint for the sender.
@@ -213,7 +215,7 @@ class FA12(sp.Contract):
             sp.record(
                 checkpointedAddress = params.from_,
                 numCheckpoints = self.data.numCheckpoints.get(params.from_, 0),
-                newBalance = self.data.balances[params.from_].balance
+                newBalance = self.data.balances[params.from_]
             )
         )
         # Write a checkpoint for the receiver
@@ -221,7 +223,7 @@ class FA12(sp.Contract):
             sp.record(
                 checkpointedAddress = params.to_,
                 numCheckpoints = self.data.numCheckpoints.get(params.to_, 0),
-                newBalance = self.data.balances[params.to_].balance
+                newBalance = self.data.balances[params.to_]
             )
         )
 
@@ -234,27 +236,28 @@ class FA12(sp.Contract):
         self.addAddressIfNecessary(sp.sender)
 
         sp.verify(~self.is_paused(), Errors.ERROR_PAUSED)
-        alreadyApproved = self.data.balances[sp.sender].approvals.get(params.spender, 0)
+        alreadyApproved = self.data.approvals[sp.sender].get(params.spender, 0)
         sp.verify((alreadyApproved == 0) | (params.value == 0), Errors.ERROR_UNSAFE_ALLOWANCE_CHANGE)
-        self.data.balances[sp.sender].approvals[params.spender] = params.value
+        self.data.approvals[sp.sender][params.spender] = params.value
 
     def addAddressIfNecessary(self, address):
         sp.if ~ self.data.balances.contains(address):
-            self.data.balances[address] = sp.record(balance = 0, approvals = {})
+            self.data.balances[address] = 0
+            self.data.approvals[address] = {}
 
     @sp.view(sp.TNat)
     def getBalance(self, params):
         # CHANGED: Add address if needed.
         self.addAddressIfNecessary(params)
 
-        sp.result(self.data.balances[params].balance)
+        sp.result(self.data.balances[params])
 
     @sp.view(sp.TNat)
     def getAllowance(self, params):
         # CHANGED: Add address if needed.
         self.addAddressIfNecessary(params.owner)
 
-        sp.result(self.data.balances[params.owner].approvals.get(params.spender, sp.nat(0)))
+        sp.result(self.data.approvals[params.owner].get(params.spender, sp.nat(0)))
 
     @sp.view(sp.TNat)
     def getTotalSupply(self, params):
@@ -277,7 +280,7 @@ class FA12(sp.Contract):
         sp.set_type(params, sp.TRecord(address = sp.TAddress, value = sp.TNat))
         sp.verify(self.is_administrator(sp.sender),  Errors.ERROR_NOT_ADMINISTRATOR)
         self.addAddressIfNecessary(params.address)
-        self.data.balances[params.address].balance += params.value
+        self.data.balances[params.address] += params.value
         self.data.totalSupply += params.value
         
         # CHANGED
@@ -286,7 +289,7 @@ class FA12(sp.Contract):
             sp.record(
                 checkpointedAddress = params.address,
                 numCheckpoints = self.data.numCheckpoints.get(params.address, 0),
-                newBalance = self.data.balances[params.address].balance
+                newBalance = self.data.balances[params.address]
             )
         )
         
@@ -1353,7 +1356,7 @@ if __name__ == "__main__":
         )
 
         # THEN Alice still has the same amount of tokens
-        scenario.verify(token.data.balances[Addresses.ALICE_ADDRESS].balance == totalTokens)
+        scenario.verify(token.data.balances[Addresses.ALICE_ADDRESS] == totalTokens)
 
         # AND Alice has one checkpoint
         scenario.verify(token.data.numCheckpoints.get(Addresses.ALICE_ADDRESS, sp.nat(0)) == sp.nat(1))
@@ -1498,7 +1501,7 @@ if __name__ == "__main__":
         )
 
         # THEN the recipient received the tokens.
-        scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == value)
+        scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == value)
 
         # AND a single checkpoint was written.
         scenario.verify(token.data.numCheckpoints[Addresses.TOKEN_RECIPIENT] == sp.nat(1))
@@ -1541,7 +1544,7 @@ if __name__ == "__main__":
         )
 
         # THEN the recipient received the tokens.
-        scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == (value1 + value2))
+        scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == (value1 + value2))
 
         # AND there are two checkpoints written.
         scenario.verify(token.data.numCheckpoints[Addresses.TOKEN_RECIPIENT] == sp.nat(2))
@@ -1698,7 +1701,7 @@ if __name__ == "__main__":
             scenario += c1.mint(address = alice.address, value = 3).run(sender = admin)
             scenario.h2("Alice transfers to Bob")
             scenario += c1.transfer(from_ = alice.address, to_ = bob.address, value = 4).run(sender = alice)
-            scenario.verify(c1.data.balances[alice.address].balance == 14)        
+            scenario.verify(c1.data.balances[alice.address] == 14)        
             scenario.h2("Bob tries to transfer from Alice but he doesn't have her approval")
             scenario += c1.transfer(from_ = alice.address, to_ = bob.address, value = 4).run(sender = bob, valid = False)
             scenario.h2("Alice approves Bob and Bob transfers")
@@ -1712,19 +1715,19 @@ if __name__ == "__main__":
             scenario.h2("Admin pauses the contract and Alice cannot transfer anymore")
             scenario += c1.setPause(True).run(sender = admin)
             scenario += c1.transfer(from_ = alice.address, to_ = bob.address, value = 4).run(sender = alice, valid = False)
-            scenario.verify(c1.data.balances[alice.address].balance == 10)
+            scenario.verify(c1.data.balances[alice.address] == 10)
             scenario.h2("Admin transfers while on pause")
             scenario += c1.transfer(from_ = alice.address, to_ = bob.address, value = 1).run(sender = admin)
             scenario.h2("Admin unpauses the contract and transferts are allowed")
             scenario += c1.setPause(False).run(sender = admin)
-            scenario.verify(c1.data.balances[alice.address].balance == 9)
+            scenario.verify(c1.data.balances[alice.address] == 9)
             scenario += c1.transfer(from_ = alice.address, to_ = bob.address, value = 1).run(sender = alice)
 
             # CHANGED: Add 1 because burning test was removed.
             scenario.verify(c1.data.totalSupply == 18)
-            scenario.verify(c1.data.balances[alice.address].balance == 8)
+            scenario.verify(c1.data.balances[alice.address] == 8)
             # CHANGED: Add 1 because burning test was removed.
-            scenario.verify(c1.data.balances[bob.address].balance == 10)
+            scenario.verify(c1.data.balances[bob.address] == 10)
 
             scenario.h1("Views")
             scenario.h2("Balance")

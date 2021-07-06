@@ -1649,7 +1649,7 @@ if __name__ == "__main__":
     )
 
     # THEN the recipient received the tokens.
-    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == withdrawAmount)
+    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == withdrawAmount)
 
     # AND the amountWithdrawn is updated correctly.
     scenario.verify(vault.data.amountWithdrawn == withdrawAmount)
@@ -1708,7 +1708,7 @@ if __name__ == "__main__":
     )
 
     # THEN the recipient received the tokens.
-    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == sp.nat(2))
+    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == sp.nat(2))
 
     # AND the amountWithdrawn is updated correctly.
     scenario.verify(vault.data.amountWithdrawn == sp.nat(2)) 
@@ -1768,7 +1768,7 @@ if __name__ == "__main__":
     )
 
     # THEN the recipient received the tokens.
-    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == sp.nat(3))
+    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == sp.nat(3))
 
     # AND the amountWithdrawn is updated correctly.
     scenario.verify(vault.data.amountWithdrawn == sp.nat(3)) 
@@ -1819,7 +1819,7 @@ if __name__ == "__main__":
     )
 
     # THEN the recipient received the tokens.
-    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == withdrawAmount)    
+    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == withdrawAmount)    
 
     # AND the amountWithdrawn is updated correctly.
     scenario.verify(vault.data.amountWithdrawn == withdrawAmount)   
@@ -1905,7 +1905,7 @@ if __name__ == "__main__":
 
     # THEN the recipient received the tokens.
     expectedAmount = sp.nat(1 + 1 + 2) # Two 1 token and one 2 token withdrawals were processsed
-    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT].balance == expectedAmount)
+    scenario.verify(token.data.balances[Addresses.TOKEN_RECIPIENT] == expectedAmount)
 
     # AND the amountWithdrawn is updated correctly.
     scenario.verify(vault.data.amountWithdrawn == expectedAmount)    
