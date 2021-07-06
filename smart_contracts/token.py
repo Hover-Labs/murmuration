@@ -61,11 +61,8 @@ class FA12(sp.Contract):
             # CHANGED: Add Checkpoints
             checkpoints = sp.big_map(
                 l = {},
-                tkey = sp.TAddress,
-                tvalue = sp.TMap(
-                    sp.TNat, 
-                    sp.TRecord(fromBlock = sp.TNat, balance = sp.TNat).layout(("fromBlock", "balance"))
-                )
+                tkey = sp.TPair(sp.TAddress, sp.TNat),
+                tvalue = sp.TRecord(fromBlock = sp.TNat, balance = sp.TNat).layout(("fromBlock", "balance"))
             ),
             # CHANGED: Add numCheckpoints
             numCheckpoints = sp.big_map(
@@ -112,16 +109,16 @@ class FA12(sp.Contract):
 
         # If there are no checkpoints, write data.
         sp.if params.numCheckpoints == 0:
-            self.data.checkpoints[params.checkpointedAddress] = { 0: sp.record(fromBlock = sp.level, balance = params.newBalance)}
+            self.data.checkpoints[(params.checkpointedAddress, 0)] = sp.record(fromBlock = sp.level, balance = params.newBalance)
             self.data.numCheckpoints[params.checkpointedAddress] = params.numCheckpoints + 1
         sp.else:
             # Otherwise, if this update occurred in the same block, overwrite
-            sp.if self.data.checkpoints[params.checkpointedAddress][sp.as_nat(params.numCheckpoints - 1)].fromBlock == sp.level: 
-                self.data.checkpoints[params.checkpointedAddress][sp.as_nat(params.numCheckpoints - 1)] = sp.record(fromBlock = sp.level, balance = params.newBalance)
+            sp.if self.data.checkpoints[(params.checkpointedAddress, sp.as_nat(params.numCheckpoints - 1))].fromBlock == sp.level: 
+                self.data.checkpoints[(params.checkpointedAddress, sp.as_nat(params.numCheckpoints - 1))] = sp.record(fromBlock = sp.level, balance = params.newBalance)
             sp.else:
                 # Only write an additional checkpoint if the balance has changed.
-                sp.if self.data.checkpoints[params.checkpointedAddress][sp.as_nat(params.numCheckpoints - 1)].balance != params.newBalance:
-                    self.data.checkpoints[params.checkpointedAddress][params.numCheckpoints] = sp.record(fromBlock = sp.level, balance = params.newBalance)
+                sp.if self.data.checkpoints[(params.checkpointedAddress, sp.as_nat(params.numCheckpoints - 1))].balance != params.newBalance:
+                    self.data.checkpoints[(params.checkpointedAddress, params.numCheckpoints)] = sp.record(fromBlock = sp.level, balance = params.newBalance)
                     self.data.numCheckpoints[params.checkpointedAddress] = params.numCheckpoints + 1
       
     # CHANGED: Add view to get balance from checkpoints
@@ -139,15 +136,15 @@ class FA12(sp.Contract):
             sp.result(sp.record(result = 0, address = params.address, level = params.level))
         sp.else:
             # First check most recent balance.
-            sp.if self.data.checkpoints[params.address][sp.as_nat(self.data.numCheckpoints[params.address] - 1)].fromBlock <= params.level:
+            sp.if self.data.checkpoints[(params.address, sp.as_nat(self.data.numCheckpoints[params.address] - 1))].fromBlock <= params.level:
                 sp.result(sp.record(
-                    result = self.data.checkpoints[params.address][sp.as_nat(self.data.numCheckpoints[params.address] - 1)].balance,
+                    result = self.data.checkpoints[(params.address, sp.as_nat(self.data.numCheckpoints[params.address] - 1))].balance,
                     address = params.address,
                     level = params.level
                 ))
             sp.else:
                 # Next, check for an implicit zero balance.
-                sp.if self.data.checkpoints[params.address][sp.nat(0)].fromBlock > params.level:
+                sp.if self.data.checkpoints[(params.address, sp.nat(0))].fromBlock > params.level:
                     sp.result(sp.record(result = 0, address = params.address, level = params.level))
                 sp.else:
                     # A boolean that indicates that the current center is the level we are looking for.
@@ -165,10 +162,10 @@ class FA12(sp.Contract):
                         center.value = sp.as_nat(upper.value - (sp.as_nat(upper.value - lower.value) / 2))
                         
                         # Check that center is the exact block we are looking for.
-                        sp.if self.data.checkpoints[params.address][center.value].fromBlock == params.level:
+                        sp.if self.data.checkpoints[(params.address, center.value)].fromBlock == params.level:
                             centerIsNeedle.value = True
                         sp.else:
-                            sp.if self.data.checkpoints[params.address][center.value].fromBlock < params.level:
+                            sp.if self.data.checkpoints[(params.address, center.value)].fromBlock < params.level:
                                 lower.value = center.value
                             sp.else:
                                 upper.value = sp.as_nat(center.value - 1)
@@ -177,7 +174,7 @@ class FA12(sp.Contract):
                     sp.if centerIsNeedle.value == True:
                         sp.result(
                             sp.record(
-                                result = self.data.checkpoints[params.address][center.value].balance,
+                                result = self.data.checkpoints[(params.address, center.value)].balance,
                                 address = params.address, 
                                 level = params.level
                             )
@@ -186,7 +183,7 @@ class FA12(sp.Contract):
                     sp.else:
                         sp.result(
                             sp.record(
-                                result = self.data.checkpoints[params.address][lower.value].balance, 
+                                result = self.data.checkpoints[(params.address, lower.value)].balance, 
                                 address = params.address, 
                                 level = params.level
                             )
@@ -368,7 +365,7 @@ if __name__ == "__main__":
     ################################################################
     # getPriorBalance
     #
-    # These tests are laregely based off of Compound's tests:
+    # These tests are largely based off of Compound's tests:
     # https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js
     ################################################################
 
@@ -1139,28 +1136,28 @@ if __name__ == "__main__":
         scenario.verify(token.data.numCheckpoints.get(Addresses.CHARLIE_ADDRESS, sp.nat(0)) == sp.nat(2))
 
         # AND history is recorded correctly for Alice.
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][0].fromBlock == 0)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][0].balance == 100)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 0)].fromBlock == 0)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 0)].balance == 100)
 
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][1].fromBlock == 1)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][1].balance == 90)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 1)].fromBlock == 1)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 1)].balance == 90)
 
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][2].fromBlock == 2)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][2].balance == 80)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 2)].fromBlock == 2)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 2)].balance == 80)
 
         # AND history is recorded correctly for Bob.
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][0].fromBlock == 1)
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][0].balance == 10)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 0)].fromBlock == 1)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 0)].balance == 10)
 
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][1].fromBlock == 3)
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][1].balance == 5)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 1)].fromBlock == 3)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 1)].balance == 5)
 
         # AND history is recorded correctly for Charlie.
-        scenario.verify(token.data.checkpoints[Addresses.CHARLIE_ADDRESS][0].fromBlock == 2)
-        scenario.verify(token.data.checkpoints[Addresses.CHARLIE_ADDRESS][0].balance == 10)
+        scenario.verify(token.data.checkpoints[(Addresses.CHARLIE_ADDRESS, 0)].fromBlock == 2)
+        scenario.verify(token.data.checkpoints[(Addresses.CHARLIE_ADDRESS, 0)].balance == 10)
 
-        scenario.verify(token.data.checkpoints[Addresses.CHARLIE_ADDRESS][1].fromBlock == 3)
-        scenario.verify(token.data.checkpoints[Addresses.CHARLIE_ADDRESS][1].balance == 15)
+        scenario.verify(token.data.checkpoints[(Addresses.CHARLIE_ADDRESS, 1)].fromBlock == 3)
+        scenario.verify(token.data.checkpoints[(Addresses.CHARLIE_ADDRESS, 1)].balance == 15)
 
     @sp.add_test(name="transfer - counts checkpoints correctly on transfers via approvals")
     def test():
@@ -1242,28 +1239,28 @@ if __name__ == "__main__":
         scenario.verify(token.data.numCheckpoints.get(Addresses.CHARLIE_ADDRESS, sp.nat(0)) == sp.nat(2))
 
         # AND history is recorded correctly for Alice.
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][0].fromBlock == 0)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][0].balance == 100)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 0)].fromBlock == 0)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 0)].balance == 100)
 
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][1].fromBlock == 1)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][1].balance == 90)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 1)].fromBlock == 1)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 1)].balance == 90)
 
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][2].fromBlock == 2)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][2].balance == 80)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 2)].fromBlock == 2)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 2)].balance == 80)
 
         # AND history is recorded correctly for Bob.
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][0].fromBlock == 1)
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][0].balance == 10)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 0)].fromBlock == 1)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 0)].balance == 10)
 
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][1].fromBlock == 3)
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][1].balance == 5)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 1)].fromBlock == 3)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 1)].balance == 5)
 
         # AND history is recorded correctly for Charlie.
-        scenario.verify(token.data.checkpoints[Addresses.CHARLIE_ADDRESS][0].fromBlock == 2)
-        scenario.verify(token.data.checkpoints[Addresses.CHARLIE_ADDRESS][0].balance == 10)
+        scenario.verify(token.data.checkpoints[(Addresses.CHARLIE_ADDRESS, 0)].fromBlock == 2)
+        scenario.verify(token.data.checkpoints[(Addresses.CHARLIE_ADDRESS, 0)].balance == 10)
 
-        scenario.verify(token.data.checkpoints[Addresses.CHARLIE_ADDRESS][1].fromBlock == 3)
-        scenario.verify(token.data.checkpoints[Addresses.CHARLIE_ADDRESS][1].balance == 15)
+        scenario.verify(token.data.checkpoints[(Addresses.CHARLIE_ADDRESS, 1)].fromBlock == 3)
+        scenario.verify(token.data.checkpoints[(Addresses.CHARLIE_ADDRESS, 1)].balance == 15)
 
     @sp.add_test(name="transfer - does not write two checkpoints for one block")
     def test():
@@ -1310,16 +1307,16 @@ if __name__ == "__main__":
 
         # THEN Alice only records the transfer for the block once.
         scenario.verify(token.data.numCheckpoints.get(Addresses.ALICE_ADDRESS, sp.nat(0)) == sp.nat(2))
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][0].fromBlock == 0)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][0].balance == totalTokens)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 0)].fromBlock == 0)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 0)].balance == totalTokens)
 
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][1].fromBlock == level)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][1].balance == sp.as_nat(totalTokens - (transferValue * 2)))
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 1)].fromBlock == level)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 1)].balance == sp.as_nat(totalTokens - (transferValue * 2)))
 
         # AND Bob only records one checkpoint        
         scenario.verify(token.data.numCheckpoints.get(Addresses.BOB_ADDRESS, sp.nat(0)) == sp.nat(1))
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][0].fromBlock == level)
-        scenario.verify(token.data.checkpoints[Addresses.BOB_ADDRESS][0].balance == (transferValue * 2))
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 0)].fromBlock == level)
+        scenario.verify(token.data.checkpoints[(Addresses.BOB_ADDRESS, 0)].balance == (transferValue * 2))
 
     @sp.add_test(name="transfer - does not write a checkpoint when the sender and receiver are the same")
     def test():
@@ -1362,8 +1359,8 @@ if __name__ == "__main__":
         scenario.verify(token.data.numCheckpoints.get(Addresses.ALICE_ADDRESS, sp.nat(0)) == sp.nat(1))
 
         # THEN Alice's checkpoint is the initial mint.
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][0].fromBlock == 0)
-        scenario.verify(token.data.checkpoints[Addresses.ALICE_ADDRESS][0].balance == totalTokens)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 0)].fromBlock == 0)
+        scenario.verify(token.data.checkpoints[(Addresses.ALICE_ADDRESS, 0)].balance == totalTokens)
 
     ################################################################
     # disableMinting
@@ -1505,8 +1502,8 @@ if __name__ == "__main__":
 
         # AND a single checkpoint was written.
         scenario.verify(token.data.numCheckpoints[Addresses.TOKEN_RECIPIENT] == sp.nat(1))
-        scenario.verify(token.data.checkpoints[Addresses.TOKEN_RECIPIENT][0].fromBlock == level)
-        scenario.verify(token.data.checkpoints[Addresses.TOKEN_RECIPIENT][0].balance == value)
+        scenario.verify(token.data.checkpoints[(Addresses.TOKEN_RECIPIENT, 0)].fromBlock == level)
+        scenario.verify(token.data.checkpoints[(Addresses.TOKEN_RECIPIENT, 0)].balance == value)
 
     @sp.add_test(name="mint - writes checkpoints correctly for multiple mints")
     def test():
@@ -1550,12 +1547,12 @@ if __name__ == "__main__":
         scenario.verify(token.data.numCheckpoints[Addresses.TOKEN_RECIPIENT] == sp.nat(2))
 
         # AND the first checkpoint was written correctly.
-        scenario.verify(token.data.checkpoints[Addresses.TOKEN_RECIPIENT][0].fromBlock == level1)
-        scenario.verify(token.data.checkpoints[Addresses.TOKEN_RECIPIENT][0].balance == value1)
+        scenario.verify(token.data.checkpoints[(Addresses.TOKEN_RECIPIENT, 0)].fromBlock == level1)
+        scenario.verify(token.data.checkpoints[(Addresses.TOKEN_RECIPIENT, 0)].balance == value1)
 
         # AND the second checkpoint was written correctly.
-        scenario.verify(token.data.checkpoints[Addresses.TOKEN_RECIPIENT][1].fromBlock == level2)
-        scenario.verify(token.data.checkpoints[Addresses.TOKEN_RECIPIENT][1].balance == (value1 + value2))
+        scenario.verify(token.data.checkpoints[(Addresses.TOKEN_RECIPIENT, 1)].fromBlock == level2)
+        scenario.verify(token.data.checkpoints[(Addresses.TOKEN_RECIPIENT, 1)].balance == (value1 + value2))
 
     ################################################################
     # updateContractMetadata
