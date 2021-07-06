@@ -637,7 +637,7 @@ if __name__ == "__main__":
     scenario.verify(poll.quorumCap.upper == governanceParameters.quorumCap.upper)
 
     # AND the dao received the tokens in escrow.
-    scenario.verify(token.data.balances[dao.address].balance == escrowAmount)
+    scenario.verify(token.data.balances[dao.address] == escrowAmount)
 
   @sp.add_test(name="propose - cannot propose if another poll is under vote")
   def test():
@@ -1376,8 +1376,8 @@ if __name__ == "__main__":
     )    
 
     # THEN alice receives the escrow.
-    scenario.verify(token.data.balances[Addresses.ALICE_ADDRESS].balance == escrowAmount)
-    scenario.verify(token.data.balances[dao.address].balance == 0)
+    scenario.verify(token.data.balances[Addresses.ALICE_ADDRESS] == escrowAmount)
+    scenario.verify(token.data.balances[dao.address] == 0)
     
   @sp.add_test(name="endVoting - gives escrow to community fund on failure")
   def test():
@@ -1463,8 +1463,8 @@ if __name__ == "__main__":
     )    
 
     # THEN the community fund receives the escrow.
-    scenario.verify(token.data.balances[Addresses.COMMUNITY_FUND_ADDRESS].balance == escrowAmount)
-    scenario.verify(token.data.balances[dao.address].balance == 0)
+    scenario.verify(token.data.balances[Addresses.COMMUNITY_FUND_ADDRESS] == escrowAmount)
+    scenario.verify(token.data.balances[dao.address] == 0)
 
   @sp.add_test(name="endVoting - removes poll if quorum and super majority not met")
   def test():

@@ -13,7 +13,7 @@ SMART_PY_CLI=~/smartpy-cli/SmartPy.sh
 OUT_DIR=./.smartpy_out
 
 # Array of files to compile.
-CONTRACTS_ARRAY=(token) #community-fund dao faucet token vesting-vault)
+CONTRACTS_ARRAY=(community-fund dao faucet token vesting-vault)
 
 # Ensure we have a SmartPy binary.
 if [ ! -f "$SMART_PY_CLI" ]; then
