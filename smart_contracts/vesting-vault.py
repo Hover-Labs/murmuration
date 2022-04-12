@@ -66,6 +66,9 @@ class VestingVault(sp.Contract):
     def withdraw(self, params):
       sp.set_type(params, sp.TRecord(numberOfTokens = sp.TNat).layout("numberOfTokens"))
 
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
       # Verify the requester is the owner.
       sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
 
@@ -101,6 +104,9 @@ class VestingVault(sp.Contract):
     def rescueXTZ(self, params):
       sp.set_type(params, sp.TRecord(destinationAddress = sp.TAddress).layout("destinationAddress"))
 
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
       # Verify the requester is the owner.
       sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
 
@@ -114,6 +120,9 @@ class VestingVault(sp.Contract):
         amount = sp.TNat,
         destination = sp.TAddress,
       ).layout(("tokenContractAddress", ("amount", "destination"))))
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify the requester is the owner.
       sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
@@ -143,6 +152,9 @@ class VestingVault(sp.Contract):
         amount = sp.TNat,
         destination = sp.TAddress,
       ).layout(("tokenContractAddress", ("tokenId", ("amount", "destination")))))
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify the requester is the owner.
       sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
@@ -192,6 +204,9 @@ class VestingVault(sp.Contract):
     def rotateOwner(self, params):
       sp.set_type(params, sp.TRecord(newOwner = sp.TAddress).layout("newOwner"))
 
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
       # Verify the requester is the governor
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
@@ -203,6 +218,9 @@ class VestingVault(sp.Contract):
     def setDaoContractAddress(self, params):
       sp.set_type(params, sp.TRecord(newDaoContractAddress = sp.TAddress).layout("newDaoContractAddress"))
 
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
       # Verify the requester is the governor
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
@@ -213,6 +231,9 @@ class VestingVault(sp.Contract):
     @sp.entry_point
     def setGovernorContract(self, newGovernorAddress):
       sp.set_type(newGovernorAddress, sp.TAddress)
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify command came from governor.
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
@@ -234,6 +255,9 @@ class VestingVault(sp.Contract):
         escrowAmount = sp.TNat,
         proposal = Proposal.PROPOSAL_TYPE
       ).layout(("escrowAmount", "proposal")))
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify the requester is the owner.
       sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)      
@@ -274,6 +298,9 @@ class VestingVault(sp.Contract):
     def vote(self, voteValue):
       sp.set_type(voteValue, sp.TNat)
 
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
       # Verify the requester is the owner.
       sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)
 
@@ -289,6 +316,9 @@ class VestingVault(sp.Contract):
     @sp.entry_point
     def executeTimelock(self, unit):
       sp.set_type(unit, sp.TUnit)
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify the requester is the owner.
       sp.verify(sp.sender == self.data.owner, Errors.ERROR_NOT_OWNER)            

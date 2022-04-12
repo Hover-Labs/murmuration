@@ -199,7 +199,10 @@ class DaoContract(sp.Contract):
   @sp.entry_point
   def propose(self, proposal):
     sp.set_type(proposal, Proposal.PROPOSAL_TYPE)
-    
+
+    # Verify that the call did not include XTZ.
+    sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
     # Verify a poll is not under vote.
     sp.verify(~self.data.poll.is_some(), Errors.ERROR_POLL_UNDERWAY)
 
@@ -243,6 +246,9 @@ class DaoContract(sp.Contract):
   @sp.entry_point
   def endVoting(self, unit):
     sp.set_type(unit, sp.TUnit)
+
+    # Verify that the call did not include XTZ.
+    sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
     # Verify a poll is underway.
     sp.verify(self.data.poll.is_some(), Errors.ERROR_NO_POLL)
@@ -326,6 +332,9 @@ class DaoContract(sp.Contract):
   def vote(self, voteValue):
     sp.set_type(voteValue, sp.TNat)
 
+    # Verify that the call did not include XTZ.
+    sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
     # Verify contract is in the correct state.
     sp.verify(self.data.state == STATE_MACHINE_IDLE, Errors.ERROR_BAD_STATE)
 
@@ -372,6 +381,9 @@ class DaoContract(sp.Contract):
   @sp.entry_point
   def voteCallback(self, returnedData):
     sp.set_type(returnedData, sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat))
+
+    # Verify that the call did not include XTZ.
+    sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
     # Verify contract is in the correct state.
     sp.verify(self.data.state == STATE_MACHINE_WAITING_FOR_BALANCE, Errors.ERROR_BAD_STATE)
@@ -430,6 +442,9 @@ class DaoContract(sp.Contract):
   def executeTimelock(self, unit):
     sp.set_type(unit, sp.TUnit)
 
+    # Verify that the call did not include XTZ.
+    sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
     # Verify an item is in the timelock
     sp.verify(self.data.timelockItem.is_some(), Errors.ERROR_NO_ITEM_IN_TIMELOCK)
 
@@ -460,6 +475,9 @@ class DaoContract(sp.Contract):
   def cancelTimelock(self, unit):
     sp.set_type(unit, sp.TUnit)
 
+    # Verify that the call did not include XTZ.
+    sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
     # Verify an item is in the timelock
     sp.verify(self.data.timelockItem.is_some(), Errors.ERROR_NO_ITEM_IN_TIMELOCK)
 
@@ -485,6 +503,9 @@ class DaoContract(sp.Contract):
   @sp.entry_point
   def setParameters(self, newGovernanceParameters):
     sp.set_type(newGovernanceParameters, GOVERNANCE_PARAMETERS_TYPE)
+
+    # Verify that the call did not include XTZ.
+    sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
     # Only the DAO can change its own parameters.
     sp.verify(sp.sender == sp.self_address, Errors.ERROR_NOT_DAO)

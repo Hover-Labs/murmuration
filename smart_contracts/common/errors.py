@@ -83,3 +83,6 @@ ERROR_NOT_VESTED = "NOT_VESTED"
 
 # A given parameter was an unacceptable value
 ERROR_BAD_DAO_PARAM = "ERROR_BAD_DAO_PARAM"
+
+# This endpoint does not accept XTZ sent to it, and XTZ was sent.
+ERROR_BAD_AMOUNT = "BAD_AMOUNT"

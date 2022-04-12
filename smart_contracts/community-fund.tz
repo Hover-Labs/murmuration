@@ -14,8 +14,19 @@ code
           {
             IF_LEFT
               {
-                SWAP;       # @storage : @parameter%rescueFA12
                 # == rescueFA12 ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%rescueFA12 : @storage
+                PUSH mutez 0; # mutez : @parameter%rescueFA12 : @storage
+                AMOUNT;     # @amount : mutez : @parameter%rescueFA12 : @storage
+                COMPARE;    # int : @parameter%rescueFA12 : @storage
+                EQ;         # bool : @parameter%rescueFA12 : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%rescueFA12 : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rescueFA12 : @storage
+                SWAP;       # @storage : @parameter%rescueFA12
                 # sp.verify(sp.sender == self.data.governorAddress, 'NOT_GOVERNOR') # @storage : @parameter%rescueFA12
                 DUP;        # @storage : @storage : @parameter%rescueFA12
                 DUG 2;      # @storage : @parameter%rescueFA12 : @storage
@@ -35,7 +46,7 @@ code
                 CONTRACT %transfer (pair (address %from) (pair (address %to) (nat %value))); # option (contract (pair (address %from) (pair (address %to) (nat %value)))) : @parameter%rescueFA12 : @storage
                 IF_NONE
                   {
-                    PUSH int 93; # int : @parameter%rescueFA12 : @storage
+                    PUSH int 105; # int : @parameter%rescueFA12 : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @parameter%rescueFA12 : @storage
@@ -53,8 +64,19 @@ code
                 CONS;       # list operation : @storage
               }
               {
-                SWAP;       # @storage : @parameter%rescueFA2
                 # == rescueFA2 ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%rescueFA2 : @storage
+                PUSH mutez 0; # mutez : @parameter%rescueFA2 : @storage
+                AMOUNT;     # @amount : mutez : @parameter%rescueFA2 : @storage
+                COMPARE;    # int : @parameter%rescueFA2 : @storage
+                EQ;         # bool : @parameter%rescueFA2 : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%rescueFA2 : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rescueFA2 : @storage
+                SWAP;       # @storage : @parameter%rescueFA2
                 # sp.verify(sp.sender == self.data.governorAddress, 'NOT_GOVERNOR') # @storage : @parameter%rescueFA2
                 DUP;        # @storage : @storage : @parameter%rescueFA2
                 DUG 2;      # @storage : @parameter%rescueFA2 : @storage
@@ -74,7 +96,7 @@ code
                 CONTRACT %transfer (list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount)))))); # option (contract (list (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))))) : @parameter%rescueFA2 : @storage
                 IF_NONE
                   {
-                    PUSH int 119; # int : @parameter%rescueFA2 : @storage
+                    PUSH int 134; # int : @parameter%rescueFA2 : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @parameter%rescueFA2 : @storage
@@ -106,8 +128,19 @@ code
           {
             IF_LEFT
               {
-                SWAP;       # @storage : @parameter%rescueXTZ
                 # == rescueXTZ ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%rescueXTZ : @storage
+                PUSH mutez 0; # mutez : @parameter%rescueXTZ : @storage
+                AMOUNT;     # @amount : mutez : @parameter%rescueXTZ : @storage
+                COMPARE;    # int : @parameter%rescueXTZ : @storage
+                EQ;         # bool : @parameter%rescueXTZ : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%rescueXTZ : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%rescueXTZ : @storage
+                SWAP;       # @storage : @parameter%rescueXTZ
                 # sp.verify(sp.sender == self.data.governorAddress, 'NOT_GOVERNOR') # @storage : @parameter%rescueXTZ
                 DUP;        # @storage : @storage : @parameter%rescueXTZ
                 DUG 2;      # @storage : @parameter%rescueXTZ : @storage
@@ -125,7 +158,7 @@ code
                 CONTRACT unit; # option (contract unit) : @storage
                 IF_NONE
                   {
-                    PUSH int 78; # int : @storage
+                    PUSH int 87; # int : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @storage
@@ -137,8 +170,19 @@ code
                 CONS;       # list operation : @storage
               }
               {
-                SWAP;       # @storage : @parameter%send
                 # == send ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%send : @storage
+                PUSH mutez 0; # mutez : @parameter%send : @storage
+                AMOUNT;     # @amount : mutez : @parameter%send : @storage
+                COMPARE;    # int : @parameter%send : @storage
+                EQ;         # bool : @parameter%send : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%send : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%send : @storage
+                SWAP;       # @storage : @parameter%send
                 # sp.verify(sp.sender == self.data.governorAddress, 'NOT_GOVERNOR') # @storage : @parameter%send
                 DUP;        # @storage : @storage : @parameter%send
                 DUG 2;      # @storage : @parameter%send : @storage
@@ -159,7 +203,7 @@ code
                 CONTRACT %transfer (pair (address %from) (pair (address %to) (nat %value))); # option (contract (pair (address %from) (pair (address %to) (nat %value)))) : list operation : @parameter%send : @storage
                 IF_NONE
                   {
-                    PUSH int 63; # int : list operation : @parameter%send : @storage
+                    PUSH int 69; # int : list operation : @parameter%send : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : list operation : @parameter%send : @storage
@@ -176,8 +220,19 @@ code
           {
             IF_LEFT
               {
-                SWAP;       # @storage : @parameter%setDelegate
                 # == setDelegate ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%setDelegate : @storage
+                PUSH mutez 0; # mutez : @parameter%setDelegate : @storage
+                AMOUNT;     # @amount : mutez : @parameter%setDelegate : @storage
+                COMPARE;    # int : @parameter%setDelegate : @storage
+                EQ;         # bool : @parameter%setDelegate : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%setDelegate : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%setDelegate : @storage
+                SWAP;       # @storage : @parameter%setDelegate
                 # sp.verify(sp.sender == self.data.governorAddress, 'NOT_GOVERNOR') # @storage : @parameter%setDelegate
                 DUP;        # @storage : @storage : @parameter%setDelegate
                 DUG 2;      # @storage : @parameter%setDelegate : @storage
@@ -198,8 +253,19 @@ code
                 CONS;       # list operation : @storage
               }
               {
-                SWAP;       # @storage : @parameter%setGovernorContract
                 # == setGovernorContract ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%setGovernorContract : @storage
+                PUSH mutez 0; # mutez : @parameter%setGovernorContract : @storage
+                AMOUNT;     # @amount : mutez : @parameter%setGovernorContract : @storage
+                COMPARE;    # int : @parameter%setGovernorContract : @storage
+                EQ;         # bool : @parameter%setGovernorContract : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%setGovernorContract : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%setGovernorContract : @storage
+                SWAP;       # @storage : @parameter%setGovernorContract
                 # sp.verify(sp.sender == self.data.governorAddress, 'NOT_GOVERNOR') # @storage : @parameter%setGovernorContract
                 DUP;        # @storage : @storage : @parameter%setGovernorContract
                 DUG 2;      # @storage : @parameter%setGovernorContract : @storage

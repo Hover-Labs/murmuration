@@ -7,8 +7,19 @@ code
       {
         IF_LEFT
           {
-            SWAP;       # @storage : @parameter%cancelTimelock
             # == cancelTimelock ==
+            # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%cancelTimelock : @storage
+            PUSH mutez 0; # mutez : @parameter%cancelTimelock : @storage
+            AMOUNT;     # @amount : mutez : @parameter%cancelTimelock : @storage
+            COMPARE;    # int : @parameter%cancelTimelock : @storage
+            EQ;         # bool : @parameter%cancelTimelock : @storage
+            IF
+              {}
+              {
+                PUSH string "BAD_AMOUNT"; # string : @parameter%cancelTimelock : @storage
+                FAILWITH;   # FAILED
+              }; # @parameter%cancelTimelock : @storage
+            SWAP;       # @storage : @parameter%cancelTimelock
             # sp.verify(self.data.timelockItem.is_some(), 'NO_ITEM_IN_TIMELOCK') # @storage : @parameter%cancelTimelock
             DUP;        # @storage : @storage : @parameter%cancelTimelock
             DUG 2;      # @storage : @parameter%cancelTimelock : @storage
@@ -28,7 +39,7 @@ code
             GET 5;      # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author))))) : @parameter%cancelTimelock : @storage
             IF_NONE
               {
-                PUSH int 467; # int : @parameter%cancelTimelock : @storage
+                PUSH int 485; # int : @parameter%cancelTimelock : @storage
                 FAILWITH;   # FAILED
               }
               {}; # @some : @parameter%cancelTimelock : @storage
@@ -49,7 +60,7 @@ code
             GET 5;      # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author))))) : @storage
             IF_NONE
               {
-                PUSH int 467; # int : @storage
+                PUSH int 485; # int : @storage
                 FAILWITH;   # FAILED
               }
               {}; # @some : @storage
@@ -66,7 +77,7 @@ code
             GET;        # option (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) : nat : @storage
             IF_NONE
               {
-                PUSH int 471; # int : nat : @storage
+                PUSH int 489; # int : nat : @storage
                 FAILWITH;   # FAILED
               }
               {}; # @some : nat : @storage
@@ -101,8 +112,19 @@ code
           {
             IF_LEFT
               {
-                SWAP;       # @storage : @parameter%endVoting
                 # == endVoting ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%endVoting : @storage
+                PUSH mutez 0; # mutez : @parameter%endVoting : @storage
+                AMOUNT;     # @amount : mutez : @parameter%endVoting : @storage
+                COMPARE;    # int : @parameter%endVoting : @storage
+                EQ;         # bool : @parameter%endVoting : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%endVoting : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%endVoting : @storage
+                SWAP;       # @storage : @parameter%endVoting
                 # sp.verify(self.data.poll.is_some(), 'NO_POLL') # @storage : @parameter%endVoting
                 DUP;        # @storage : @storage : @parameter%endVoting
                 DUG 2;      # @storage : @parameter%endVoting : @storage
@@ -135,7 +157,7 @@ code
                 CAR;        # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper)))))))))))))) : @parameter%endVoting : @storage
                 IF_NONE
                   {
-                    PUSH int 254; # int : @parameter%endVoting : @storage
+                    PUSH int 260; # int : @parameter%endVoting : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @parameter%endVoting : @storage
@@ -172,7 +194,7 @@ code
                 EDIV;       # option (pair nat nat) : address : @some : @parameter%endVoting : @storage
                 IF_NONE
                   {
-                    PUSH int 259; # int : address : @some : @parameter%endVoting : @storage
+                    PUSH int 265; # int : address : @some : @parameter%endVoting : @storage
                     FAILWITH;   # FAILED
                   }
                   {
@@ -199,7 +221,7 @@ code
                 CONTRACT %transfer (pair (address %from) (pair (address %to) (nat %value))); # option (contract (pair (address %from) (pair (address %to) (nat %value)))) : list operation : address : @some : @parameter%endVoting : @storage
                 IF_NONE
                   {
-                    PUSH int 268; # int : list operation : address : @some : @parameter%endVoting : @storage
+                    PUSH int 274; # int : list operation : address : @some : @parameter%endVoting : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : list operation : address : @some : @parameter%endVoting : @storage
@@ -231,7 +253,7 @@ code
                 EDIV;       # option (pair nat nat) : list operation : address : @some : @parameter%endVoting : @storage
                 IF_NONE
                   {
-                    PUSH int 260; # int : list operation : address : @some : @parameter%endVoting : @storage
+                    PUSH int 266; # int : list operation : address : @some : @parameter%endVoting : @storage
                     FAILWITH;   # FAILED
                   }
                   {
@@ -355,7 +377,7 @@ code
                 EDIV;       # option (pair nat nat) : list operation : address : @some : @parameter%endVoting : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map string bytes) (pair nat (big_map nat (pair nat (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair nat (pair (pair string (pair string (pair string (lambda unit (list operation))))) (pair nat (pair nat (pair nat (pair nat (pair nat (pair nat (pair (map address (pair nat (pair nat nat))) (pair address (pair nat (pair nat (pair nat nat)))))))))))))) (pair (nat %quorum) (nat %state))) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
                 IF_NONE
                   {
-                    PUSH int 307; # int : list operation : address : @some : @parameter%endVoting : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map string bytes) (pair nat (big_map nat (pair nat (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair nat (pair (pair string (pair string (pair string (lambda unit (list operation))))) (pair nat (pair nat (pair nat (pair nat (pair nat (pair nat (pair (map address (pair nat (pair nat nat))) (pair address (pair nat (pair nat (pair nat nat)))))))))))))) (pair (nat %quorum) (nat %state))) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
+                    PUSH int 313; # int : list operation : address : @some : @parameter%endVoting : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map string bytes) (pair nat (big_map nat (pair nat (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair nat (pair (pair string (pair string (pair string (lambda unit (list operation))))) (pair nat (pair nat (pair nat (pair nat (pair nat (pair nat (pair (map address (pair nat (pair nat nat))) (pair address (pair nat (pair nat (pair nat nat)))))))))))))) (pair (nat %quorum) (nat %state))) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
                     FAILWITH;   # FAILED
                   }
                   {
@@ -369,7 +391,7 @@ code
                 EDIV;       # option (pair nat nat) : nat : list operation : address : @some : @parameter%endVoting : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map string bytes) (pair nat (big_map nat (pair nat (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair nat (pair (pair string (pair string (pair string (lambda unit (list operation))))) (pair nat (pair nat (pair nat (pair nat (pair nat (pair nat (pair (map address (pair nat (pair nat nat))) (pair address (pair nat (pair nat (pair nat nat)))))))))))))) (pair (nat %quorum) (nat %state))) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
                 IF_NONE
                   {
-                    PUSH int 308; # int : nat : list operation : address : @some : @parameter%endVoting : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map string bytes) (pair nat (big_map nat (pair nat (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair nat (pair (pair string (pair string (pair string (lambda unit (list operation))))) (pair nat (pair nat (pair nat (pair nat (pair nat (pair nat (pair (map address (pair nat (pair nat nat))) (pair address (pair nat (pair nat (pair nat nat)))))))))))))) (pair (nat %quorum) (nat %state))) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
+                    PUSH int 314; # int : nat : list operation : address : @some : @parameter%endVoting : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map string bytes) (pair nat (big_map nat (pair nat (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair nat (pair (pair string (pair string (pair string (lambda unit (list operation))))) (pair nat (pair nat (pair nat (pair nat (pair nat (pair nat (pair (map address (pair nat (pair nat nat))) (pair address (pair nat (pair nat (pair nat nat)))))))))))))) (pair (nat %quorum) (nat %state))) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
                     FAILWITH;   # FAILED
                   }
                   {
@@ -437,8 +459,19 @@ code
                 SWAP;       # list operation : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map string bytes) (pair nat (big_map nat (pair nat (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair nat (pair (pair string (pair string (pair string (lambda unit (list operation))))) (pair nat (pair nat (pair nat (pair nat (pair nat (pair nat (pair (map address (pair nat (pair nat nat))) (pair address (pair nat (pair nat (pair nat nat)))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
               }
               {
-                SWAP;       # @storage : @parameter%executeTimelock
                 # == executeTimelock ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%executeTimelock : @storage
+                PUSH mutez 0; # mutez : @parameter%executeTimelock : @storage
+                AMOUNT;     # @amount : mutez : @parameter%executeTimelock : @storage
+                COMPARE;    # int : @parameter%executeTimelock : @storage
+                EQ;         # bool : @parameter%executeTimelock : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%executeTimelock : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%executeTimelock : @storage
+                SWAP;       # @storage : @parameter%executeTimelock
                 # sp.verify(self.data.timelockItem.is_some(), 'NO_ITEM_IN_TIMELOCK') # @storage : @parameter%executeTimelock
                 DUP;        # @storage : @storage : @parameter%executeTimelock
                 DUG 2;      # @storage : @parameter%executeTimelock : @storage
@@ -458,7 +491,7 @@ code
                 GET 5;      # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author))))) : @parameter%executeTimelock : @storage
                 IF_NONE
                   {
-                    PUSH int 467; # int : @parameter%executeTimelock : @storage
+                    PUSH int 485; # int : @parameter%executeTimelock : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @parameter%executeTimelock : @storage
@@ -479,7 +512,7 @@ code
                 GET 5;      # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author))))) : @parameter%executeTimelock : @storage
                 IF_NONE
                   {
-                    PUSH int 467; # int : @parameter%executeTimelock : @storage
+                    PUSH int 485; # int : @parameter%executeTimelock : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @parameter%executeTimelock : @storage
@@ -500,7 +533,7 @@ code
                 GET 5;      # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author))))) : @storage
                 IF_NONE
                   {
-                    PUSH int 467; # int : @storage
+                    PUSH int 485; # int : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @storage
@@ -522,7 +555,7 @@ code
                 GET 5;      # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author))))) : list operation : @storage
                 IF_NONE
                   {
-                    PUSH int 467; # int : list operation : @storage
+                    PUSH int 485; # int : list operation : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : list operation : @storage
@@ -537,7 +570,7 @@ code
                 GET;        # option (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) : nat : list operation : @storage
                 IF_NONE
                   {
-                    PUSH int 449; # int : nat : list operation : @storage
+                    PUSH int 464; # int : nat : list operation : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : nat : list operation : @storage
@@ -576,8 +609,19 @@ code
           {
             IF_LEFT
               {
-                SWAP;       # @storage : @parameter%propose
                 # == propose ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%propose : @storage
+                PUSH mutez 0; # mutez : @parameter%propose : @storage
+                AMOUNT;     # @amount : mutez : @parameter%propose : @storage
+                COMPARE;    # int : @parameter%propose : @storage
+                EQ;         # bool : @parameter%propose : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%propose : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%propose : @storage
+                SWAP;       # @storage : @parameter%propose
                 # sp.verify(~ self.data.poll.is_some(), 'POLL_UNDERWAY') # @storage : @parameter%propose
                 DUP;        # @storage : @storage : @parameter%propose
                 DUG 2;      # @storage : @parameter%propose : @storage
@@ -596,7 +640,7 @@ code
                 CONTRACT %transfer (pair (address %from) (pair (address %to) (nat %value))); # option (contract (pair (address %from) (pair (address %to) (nat %value)))) : list operation : @parameter%propose : @storage
                 IF_NONE
                   {
-                    PUSH int 207; # int : list operation : @parameter%propose : @storage
+                    PUSH int 210; # int : list operation : @parameter%propose : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : list operation : @parameter%propose : @storage
@@ -688,6 +732,17 @@ code
               }
               {
                 # == setParameters ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%setParameters : @storage
+                PUSH mutez 0; # mutez : @parameter%setParameters : @storage
+                AMOUNT;     # @amount : mutez : @parameter%setParameters : @storage
+                COMPARE;    # int : @parameter%setParameters : @storage
+                EQ;         # bool : @parameter%setParameters : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%setParameters : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%setParameters : @storage
                 # sp.verify(sp.sender == sp.self_address, 'NOT_DAO') # @parameter%setParameters : @storage
                 SELF_ADDRESS; # @self : @parameter%setParameters : @storage
                 SENDER;     # @sender : @self : @parameter%setParameters : @storage
@@ -755,6 +810,17 @@ code
             IF_LEFT
               {
                 # == vote ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%vote : @storage
+                PUSH mutez 0; # mutez : @parameter%vote : @storage
+                AMOUNT;     # @amount : mutez : @parameter%vote : @storage
+                COMPARE;    # int : @parameter%vote : @storage
+                EQ;         # bool : @parameter%vote : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%vote : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%vote : @storage
                 # sp.verify(self.data.state == 0, 'BAD_STATE') # @parameter%vote : @storage
                 PUSH nat 0; # nat : @parameter%vote : @storage
                 DUP 3;      # @storage : nat : @parameter%vote : @storage
@@ -804,7 +870,7 @@ code
                 CAR;        # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper)))))))))))))) : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level))))))) : @parameter%vote
                 IF_NONE
                   {
-                    PUSH int 254; # int : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level))))))) : @parameter%vote
+                    PUSH int 260; # int : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level))))))) : @parameter%vote
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level))))))) : @parameter%vote
@@ -820,7 +886,7 @@ code
                 CONTRACT %getPriorBalance (pair (pair (address %address) (nat %level)) (contract (pair (address %address) (pair (nat %level) (nat %result))))); # option (contract (pair (pair (address %address) (nat %level)) (contract (pair (address %address) (pair (nat %level) (nat %result)))))) : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
                 IF_NONE
                   {
-                    PUSH int 346; # int : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
+                    PUSH int 355; # int : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
@@ -833,7 +899,7 @@ code
                 CAR;        # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper)))))))))))))) : @self : mutez : @some : list operation : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
                 IF_NONE
                   {
-                    PUSH int 254; # int : @self : mutez : @some : list operation : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
+                    PUSH int 260; # int : @self : mutez : @some : list operation : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @self : mutez : @some : list operation : pair (pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))))))) (pair (pair (option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair nat nat)) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))))
@@ -846,6 +912,17 @@ code
               }
               {
                 # == voteCallback ==
+                # sp.verify(sp.amount == sp.tez(0), 'BAD_AMOUNT') # @parameter%voteCallback : @storage
+                PUSH mutez 0; # mutez : @parameter%voteCallback : @storage
+                AMOUNT;     # @amount : mutez : @parameter%voteCallback : @storage
+                COMPARE;    # int : @parameter%voteCallback : @storage
+                EQ;         # bool : @parameter%voteCallback : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "BAD_AMOUNT"; # string : @parameter%voteCallback : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%voteCallback : @storage
                 # sp.verify(self.data.state == 1, 'BAD_STATE') # @parameter%voteCallback : @storage
                 PUSH nat 1; # nat : @parameter%voteCallback : @storage
                 DUP 3;      # @storage : nat : @parameter%voteCallback : @storage
@@ -880,7 +957,7 @@ code
                 GET 8;      # option (pair (nat %voteValue) (pair (address %address) (nat %level))) : address : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 383; # int : address : @parameter%voteCallback : @storage
+                    PUSH int 395; # int : address : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : address : @parameter%voteCallback : @storage
@@ -900,7 +977,7 @@ code
                 GET 8;      # option (pair (nat %voteValue) (pair (address %address) (nat %level))) : nat : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 383; # int : nat : @parameter%voteCallback : @storage
+                    PUSH int 395; # int : nat : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : nat : @parameter%voteCallback : @storage
@@ -921,7 +998,7 @@ code
                 CAR;        # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper)))))))))))))) : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 254; # int : @parameter%voteCallback : @storage
+                    PUSH int 260; # int : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @parameter%voteCallback : @storage
@@ -930,7 +1007,7 @@ code
                 GET 8;      # option (pair (nat %voteValue) (pair (address %address) (nat %level))) : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 383; # int : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @parameter%voteCallback : @storage
+                    PUSH int 395; # int : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @parameter%voteCallback : @storage
@@ -950,7 +1027,7 @@ code
                 CAR;        # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper)))))))))))))) : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 254; # int : @parameter%voteCallback : @storage
+                    PUSH int 260; # int : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @parameter%voteCallback : @storage
@@ -960,7 +1037,7 @@ code
                 CAR;        # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper)))))))))))))) : @some : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 254; # int : @some : @parameter%voteCallback : @storage
+                    PUSH int 260; # int : @some : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @some : @parameter%voteCallback : @storage
@@ -980,7 +1057,7 @@ code
                 CAR;        # option (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper)))))))))))))) : @some : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 254; # int : @some : @parameter%voteCallback : @storage
+                    PUSH int 260; # int : @some : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @some : @parameter%voteCallback : @storage
@@ -996,7 +1073,7 @@ code
                 GET 8;      # option (pair (nat %voteValue) (pair (address %address) (nat %level))) : @level : nat : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @some : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 383; # int : @level : nat : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @some : @parameter%voteCallback : @storage
+                    PUSH int 395; # int : @level : nat : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @some : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : @level : nat : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @some : @parameter%voteCallback : @storage
@@ -1007,7 +1084,7 @@ code
                 GET 8;      # option (pair (nat %voteValue) (pair (address %address) (nat %level))) : option (pair nat (pair @level nat)) : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @some : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 383; # int : option (pair nat (pair @level nat)) : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @some : @parameter%voteCallback : @storage
+                    PUSH int 395; # int : option (pair nat (pair @level nat)) : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @some : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : option (pair nat (pair @level nat)) : map address (pair (nat %voteValue) (pair (nat %level) (nat %votes))) : @some : @parameter%voteCallback : @storage
@@ -1027,7 +1104,7 @@ code
                 GET 8;      # option (pair (nat %voteValue) (pair (address %address) (nat %level))) : nat : @some : @parameter%voteCallback : @storage
                 IF_NONE
                   {
-                    PUSH int 383; # int : nat : @some : @parameter%voteCallback : @storage
+                    PUSH int 395; # int : nat : @some : @parameter%voteCallback : @storage
                     FAILWITH;   # FAILED
                   }
                   {}; # @some : nat : @some : @parameter%voteCallback : @storage
@@ -1051,7 +1128,7 @@ code
                     GET 8;      # option (pair (nat %voteValue) (pair (address %address) (nat %level))) : nat : @some : @parameter%voteCallback : @storage
                     IF_NONE
                       {
-                        PUSH int 383; # int : nat : @some : @parameter%voteCallback : @storage
+                        PUSH int 395; # int : nat : @some : @parameter%voteCallback : @storage
                         FAILWITH;   # FAILED
                       }
                       {}; # @some : nat : @some : @parameter%voteCallback : @storage
@@ -1075,7 +1152,7 @@ code
                         GET 8;      # option (pair (nat %voteValue) (pair (address %address) (nat %level))) : nat : @some : @parameter%voteCallback : @storage
                         IF_NONE
                           {
-                            PUSH int 383; # int : nat : @some : @parameter%voteCallback : @storage
+                            PUSH int 395; # int : nat : @some : @parameter%voteCallback : @storage
                             FAILWITH;   # FAILED
                           }
                           {}; # @some : nat : @some : @parameter%voteCallback : @storage
