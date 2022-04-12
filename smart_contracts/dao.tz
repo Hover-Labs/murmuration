@@ -773,6 +773,45 @@ code
                     PUSH string "NOT_DAO"; # string : @parameter%setParameters : @storage
                     FAILWITH;   # FAILED
                   }; # @parameter%setParameters : @storage
+                # sp.verify(params.quorumCap.upper <= 100, message = 'ERROR_BAD_DAO_PARAM') # @parameter%setParameters : @storage
+                DUP;        # @parameter%setParameters : @parameter%setParameters : @storage
+                GET 16;     # nat : @parameter%setParameters : @storage
+                PUSH nat 100; # nat : nat : @parameter%setParameters : @storage
+                SWAP;       # nat : nat : @parameter%setParameters : @storage
+                COMPARE;    # int : @parameter%setParameters : @storage
+                LE;         # bool : @parameter%setParameters : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "ERROR_BAD_DAO_PARAM"; # string : @parameter%setParameters : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%setParameters : @storage
+                # sp.verify(params.percentageForSuperMajority <= 100, message = 'ERROR_BAD_DAO_PARAM') # @parameter%setParameters : @storage
+                DUP;        # @parameter%setParameters : @parameter%setParameters : @storage
+                GET 13;     # nat : @parameter%setParameters : @storage
+                PUSH nat 100; # nat : nat : @parameter%setParameters : @storage
+                SWAP;       # nat : nat : @parameter%setParameters : @storage
+                COMPARE;    # int : @parameter%setParameters : @storage
+                LE;         # bool : @parameter%setParameters : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "ERROR_BAD_DAO_PARAM"; # string : @parameter%setParameters : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%setParameters : @storage
+                # sp.verify(params.minYayVotesPercentForEscrowReturn <= 100, message = 'ERROR_BAD_DAO_PARAM') # @parameter%setParameters : @storage
+                DUP;        # @parameter%setParameters : @parameter%setParameters : @storage
+                GET 7;      # nat : @parameter%setParameters : @storage
+                PUSH nat 100; # nat : nat : @parameter%setParameters : @storage
+                SWAP;       # nat : nat : @parameter%setParameters : @storage
+                COMPARE;    # int : @parameter%setParameters : @storage
+                LE;         # bool : @parameter%setParameters : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "ERROR_BAD_DAO_PARAM"; # string : @parameter%setParameters : @storage
+                    FAILWITH;   # FAILED
+                  }; # @parameter%setParameters : @storage
                 SWAP;       # @storage : @parameter%setParameters
                 # self.data.governanceParameters = params # @storage : @parameter%setParameters
                 UNPAIR;     # pair (pair (address %communityFundAddress) (pair %governanceParameters (nat %escrowAmount) (pair (nat %voteDelayBlocks) (pair (nat %voteLengthBlocks) (pair (nat %minYayVotesPercentForEscrowReturn) (pair (nat %blocksInTimelockForExecution) (pair (nat %blocksInTimelockForCancellation) (pair (nat %percentageForSuperMajority) (pair %quorumCap (nat %lower) (nat %upper)))))))))) (pair (big_map %metadata string bytes) (pair (nat %nextProposalId) (big_map %outcomes nat (pair (nat %outcome) (pair %poll (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper)))))))))))))))))) : pair (pair (option %poll (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %votingStartBlock) (pair (nat %votingEndBlock) (pair (nat %yayVotes) (pair (nat %nayVotes) (pair (nat %abstainVotes) (pair (nat %totalVotes) (pair (map %voters address (pair (nat %voteValue) (pair (nat %level) (nat %votes)))) (pair (address %author) (pair (nat %escrowAmount) (pair (nat %quorum) (pair %quorumCap (nat %lower) (nat %upper))))))))))))))) (pair (nat %quorum) (nat %state))) (pair (option %timelockItem (pair (nat %id) (pair (pair %proposal (string %title) (pair (string %descriptionLink) (pair (string %descriptionHash) (lambda %proposalLambda unit (list operation))))) (pair (nat %endBlock) (pair (nat %cancelBlock) (address %author)))))) (pair (address %tokenContractAddress) (option %votingState (pair (nat %voteValue) (pair (address %address) (nat %level)))))) : @parameter%setParameters

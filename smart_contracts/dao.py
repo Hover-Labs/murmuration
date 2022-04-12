@@ -489,6 +489,20 @@ class DaoContract(sp.Contract):
     # Only the DAO can change its own parameters.
     sp.verify(sp.sender == sp.self_address, Errors.ERROR_NOT_DAO)
 
+    # Validate that upper quorum cap is less than 100. Values greater than 100 are unachievable
+    # and will result in the DAO being unable to pass proposals.
+    # NOTE: Lower quorum cap can't be less than 0, because the Michelson `nat` type ensures numbers are
+    # always positive
+    sp.verify(newGovernanceParameters.quorumCap.upper <= 100, Errors.ERROR_BAD_DAO_PARAM)
+
+    # Validate that percentages for super majority is less than 100. Values greater than
+    # 100 are unachievable and will result in the DAO being unable to pass proposals.
+    sp.verify(newGovernanceParameters.percentageForSuperMajority <= 100, Errors.ERROR_BAD_DAO_PARAM)
+
+    # Validate that the percentage of yay votes for escrow return is less than 100. Values greater than
+    # 100 are unachievable, and will result in Escrow always being confiscated. 
+    sp.verify(newGovernanceParameters.minYayVotesPercentForEscrowReturn <= 100, Errors.ERROR_BAD_DAO_PARAM)
+
     # Update parameters.
     self.data.governanceParameters = newGovernanceParameters
 
@@ -2866,5 +2880,180 @@ if __name__ == "__main__":
       sender = notDao,
       valid = False
     )
+
+  @sp.add_test(name="setParameters - fails if upper quorum cap is above 100")
+  def test():
+    scenario = sp.test_scenario()
+    
+    # Given governance parameters with a quorum cap greater than 100
+    escrowAmount = sp.nat(10)
+    voteDelayBlocks = sp.nat(1)
+    voteLengthBlocks = sp.nat(10)
+    minYayVotesPercentForEscrowReturn = sp.nat(20)
+    blocksInTimelockForExecution = sp.nat(30)
+    blocksInTimelockForCancellation = sp.nat(40)
+    percentageForSuperMajority = sp.nat(80)
+    quorumCap = sp.record(lower = 1, upper = 99)
+    governanceParameters = sp.record(
+      escrowAmount = escrowAmount,
+      voteDelayBlocks = voteDelayBlocks,
+      voteLengthBlocks = voteLengthBlocks,
+      minYayVotesPercentForEscrowReturn = minYayVotesPercentForEscrowReturn,
+      blocksInTimelockForExecution = blocksInTimelockForExecution,
+      blocksInTimelockForCancellation = blocksInTimelockForCancellation,
+      percentageForSuperMajority = percentageForSuperMajority,
+      quorumCap = quorumCap
+    )
+
+        # AND a dao contract.
+    dao = DaoContract(
+      governanceParameters = governanceParameters,
+    )
+    scenario += dao
+
+    # WHEN the DAO contract tries to rotate the parameters to have a quorum cap 
+    # that is above 100.
+    newQuorumCap = sp.record(lower = 2, upper = 105)
+
+    newEscrowAmount = sp.nat(12)
+    newVoteDelayBlocks = sp.nat(2)
+    newVoteLengthBlocks = sp.nat(11)
+    newminYayVotesPercentForEscrowReturn = sp.nat(21)
+    newblocksInTimelockForExecution = sp.nat(31)
+    newblocksInTimelockForCancellation = sp.nat(41)
+    newPercentageForSuperMajority = sp.nat(81)
+    newGovernanceParameters = sp.record(
+      escrowAmount = newEscrowAmount,
+      voteDelayBlocks = newVoteDelayBlocks,
+      voteLengthBlocks = newVoteLengthBlocks,
+      minYayVotesPercentForEscrowReturn = newminYayVotesPercentForEscrowReturn,
+      blocksInTimelockForExecution = newblocksInTimelockForExecution,
+      blocksInTimelockForCancellation = newblocksInTimelockForCancellation,
+      percentageForSuperMajority = newPercentageForSuperMajority,
+      quorumCap = newQuorumCap
+    )
+
+    # THEN the call fails
+    scenario += dao.setParameters(newGovernanceParameters).run(
+      sender = dao.address,
+      valid = False
+    )
+
+  @sp.add_test(name="setParameters - fails if super majority is above 100")
+  def test():
+    scenario = sp.test_scenario()
+    
+    # Given governance parameters with a quorum cap greater than 100
+    escrowAmount = sp.nat(10)
+    voteDelayBlocks = sp.nat(1)
+    voteLengthBlocks = sp.nat(10)
+    minYayVotesPercentForEscrowReturn = sp.nat(20)
+    blocksInTimelockForExecution = sp.nat(30)
+    blocksInTimelockForCancellation = sp.nat(40)
+    percentageForSuperMajority = sp.nat(80)
+    quorumCap = sp.record(lower = 1, upper = 99)
+    governanceParameters = sp.record(
+      escrowAmount = escrowAmount,
+      voteDelayBlocks = voteDelayBlocks,
+      voteLengthBlocks = voteLengthBlocks,
+      minYayVotesPercentForEscrowReturn = minYayVotesPercentForEscrowReturn,
+      blocksInTimelockForExecution = blocksInTimelockForExecution,
+      blocksInTimelockForCancellation = blocksInTimelockForCancellation,
+      percentageForSuperMajority = percentageForSuperMajority,
+      quorumCap = quorumCap
+    )
+
+        # AND a dao contract.
+    dao = DaoContract(
+      governanceParameters = governanceParameters,
+    )
+    scenario += dao
+
+    # WHEN the DAO contract tries to rotate the parameters to have a super majority 
+    # that is above 100.
+    newPercentageForSuperMajority = sp.nat(105)
+
+    newEscrowAmount = sp.nat(12)
+    newVoteDelayBlocks = sp.nat(2)
+    newVoteLengthBlocks = sp.nat(11)
+    newminYayVotesPercentForEscrowReturn = sp.nat(21)
+    newblocksInTimelockForExecution = sp.nat(31)
+    newblocksInTimelockForCancellation = sp.nat(41)
+    newQuorumCap = sp.record(lower = 2, upper = 105)
+    newGovernanceParameters = sp.record(
+      escrowAmount = newEscrowAmount,
+      voteDelayBlocks = newVoteDelayBlocks,
+      voteLengthBlocks = newVoteLengthBlocks,
+      minYayVotesPercentForEscrowReturn = newminYayVotesPercentForEscrowReturn,
+      blocksInTimelockForExecution = newblocksInTimelockForExecution,
+      blocksInTimelockForCancellation = newblocksInTimelockForCancellation,
+      percentageForSuperMajority = newPercentageForSuperMajority,
+      quorumCap = newQuorumCap
+    )
+
+    # THEN the call fails
+    scenario += dao.setParameters(newGovernanceParameters).run(
+      sender = dao.address,
+      valid = False
+    )
+
+  @sp.add_test(name="setParameters - fails if min yay votes for escrow return is above 100")
+  def test():
+    scenario = sp.test_scenario()
+    
+    # Given governance parameters with a quorum cap greater than 100
+    escrowAmount = sp.nat(10)
+    voteDelayBlocks = sp.nat(1)
+    voteLengthBlocks = sp.nat(10)
+    minYayVotesPercentForEscrowReturn = sp.nat(20)
+    blocksInTimelockForExecution = sp.nat(30)
+    blocksInTimelockForCancellation = sp.nat(40)
+    percentageForSuperMajority = sp.nat(80)
+    quorumCap = sp.record(lower = 1, upper = 99)
+    governanceParameters = sp.record(
+      escrowAmount = escrowAmount,
+      voteDelayBlocks = voteDelayBlocks,
+      voteLengthBlocks = voteLengthBlocks,
+      minYayVotesPercentForEscrowReturn = minYayVotesPercentForEscrowReturn,
+      blocksInTimelockForExecution = blocksInTimelockForExecution,
+      blocksInTimelockForCancellation = blocksInTimelockForCancellation,
+      percentageForSuperMajority = percentageForSuperMajority,
+      quorumCap = quorumCap
+    )
+
+        # AND a dao contract.
+    dao = DaoContract(
+      governanceParameters = governanceParameters,
+    )
+    scenario += dao
+
+    # WHEN the DAO contract tries to rotate the parameters to have a min yay votes
+    # for escrow return that is above 100.
+    newminYayVotesPercentForEscrowReturn = sp.nat(105.)
+
+    newEscrowAmount = sp.nat(12)
+    newVoteDelayBlocks = sp.nat(2)
+    newVoteLengthBlocks = sp.nat(11)
+    newblocksInTimelockForExecution = sp.nat(31)
+    newblocksInTimelockForCancellation = sp.nat(41)
+    newPercentageForSuperMajority = sp.nat(105)
+    newQuorumCap = sp.record(lower = 2, upper = 105)
+    newGovernanceParameters = sp.record(
+      escrowAmount = newEscrowAmount,
+      voteDelayBlocks = newVoteDelayBlocks,
+      voteLengthBlocks = newVoteLengthBlocks,
+      minYayVotesPercentForEscrowReturn = newminYayVotesPercentForEscrowReturn,
+      blocksInTimelockForExecution = newblocksInTimelockForExecution,
+      blocksInTimelockForCancellation = newblocksInTimelockForCancellation,
+      percentageForSuperMajority = newPercentageForSuperMajority,
+      quorumCap = newQuorumCap
+    )
+
+    # THEN the call fails
+    scenario += dao.setParameters(newGovernanceParameters).run(
+      sender = dao.address,
+      valid = False
+    )
+
 
   sp.add_compilation_target("dao", DaoContract())
