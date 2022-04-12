@@ -80,3 +80,6 @@ ERROR_NOT_OWNER = "NOT_OWNER"
 
 # The requested operation could not be completed because not enough value is vested
 ERROR_NOT_VESTED = "NOT_VESTED"
+
+# A given parameter was an unacceptable value
+ERROR_BAD_DAO_PARAM = "ERROR_BAD_DAO_PARAM"
