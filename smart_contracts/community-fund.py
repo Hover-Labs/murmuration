@@ -45,6 +45,9 @@ class CommunityFund(sp.Contract):
     def setGovernorContract(self, newGovernorAddress):
       sp.set_type(newGovernorAddress, sp.TAddress)
 
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
       # Verify command came from governor.
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
 
@@ -55,6 +58,9 @@ class CommunityFund(sp.Contract):
     @sp.entry_point	
     def send(self, params):
       sp.set_type(params, sp.TRecord(numberOfTokens = sp.TNat, destination = sp.TAddress).layout(("numberOfTokens", "destination")))
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify command came from governor.
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
@@ -73,6 +79,9 @@ class CommunityFund(sp.Contract):
     def rescueXTZ(self, params):
       sp.set_type(params, sp.TRecord(destinationAddress = sp.TAddress).layout("destinationAddress"))
 
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
       # Verify the requester is the governor.
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
       sp.send(params.destinationAddress, sp.balance)
@@ -85,6 +94,9 @@ class CommunityFund(sp.Contract):
         amount = sp.TNat,
         destination = sp.TAddress,
       ).layout(("tokenContractAddress", ("amount", "destination"))))
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify the requester is the governor.
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
@@ -111,6 +123,9 @@ class CommunityFund(sp.Contract):
         amount = sp.TNat,
         destination = sp.TAddress,
       ).layout(("tokenContractAddress", ("tokenId", ("amount", "destination")))))
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify the requester is the governor.
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)
@@ -150,6 +165,9 @@ class CommunityFund(sp.Contract):
     @sp.entry_point
     def setDelegate(self, newDelegate):
       sp.set_type(newDelegate, sp.TOption(sp.TKeyHash))
+
+      # Verify that the call did not include XTZ.
+      sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
       # Verify the caller is the governor.
       sp.verify(sp.sender == self.data.governorAddress, Errors.ERROR_NOT_GOVERNOR)

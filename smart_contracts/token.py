@@ -89,6 +89,9 @@ class FA12(sp.Contract):
     def updateContractMetadata(self, params):	
         sp.set_type(params, sp.TPair(sp.TString, sp.TBytes))	
 
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
         sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
 
         key = sp.fst(params)	
@@ -99,6 +102,9 @@ class FA12(sp.Contract):
     @sp.entry_point	
     def updateTokenMetadata(self, params):	
         sp.set_type(params, sp.TRecord(token_id = sp.TNat, token_info = sp.TMap(sp.TString, sp.TBytes)))	
+
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
         sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
 
@@ -130,6 +136,9 @@ class FA12(sp.Contract):
             address = sp.TAddress,
             level = sp.TNat,
         ).layout(("address", "level")))
+
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
         sp.verify(params.level < sp.level, Errors.ERROR_BLOCK_LEVEL_TOO_SOON)
 
@@ -200,6 +209,9 @@ class FA12(sp.Contract):
                  (self.data.approvals[params.from_][sp.sender] >= params.value))), Errors.ERROR_NOT_ALLOWED)
         self.addAddressIfNecessary(params.to_)
 
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
         # CHANGED: Add from address as well.
         self.addAddressIfNecessary(params.from_)
 
@@ -231,6 +243,9 @@ class FA12(sp.Contract):
     def approve(self, params):
         sp.set_type(params, sp.TRecord(spender = sp.TAddress, value = sp.TNat).layout(("spender", "value")))
 
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
         # CHANGED: Add address if needed. This fixes a bug in our tests for checkpoints where you cannot approve
         # before you have a balance.
         self.addAddressIfNecessary(sp.sender)
@@ -254,6 +269,9 @@ class FA12(sp.Contract):
 
     @sp.utils.view(sp.TNat)
     def getAllowance(self, params):
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
         # CHANGED: Add address if needed.
         self.addAddressIfNecessary(params.owner)
 
@@ -262,12 +280,19 @@ class FA12(sp.Contract):
     @sp.utils.view(sp.TNat)
     def getTotalSupply(self, params):
         sp.set_type(params, sp.TUnit)
+
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
         sp.result(self.data.totalSupply)
 
     # CHANGED: Allow minting to be disabled.
     @sp.entry_point
     def disableMinting(self, unit):
         sp.set_type(unit, sp.TUnit)
+
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
 
         sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
         self.data.mintingDisabled = True        
@@ -276,6 +301,9 @@ class FA12(sp.Contract):
     def mint(self, params):
         # CHANGED: Disallow minting.
         sp.verify(self.data.mintingDisabled == False, Errors.ERROR_NOT_ALLOWED)
+
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
         
         sp.set_type(params, sp.TRecord(address = sp.TAddress, value = sp.TNat))
         sp.verify(self.is_administrator(sp.sender),  Errors.ERROR_NOT_ADMINISTRATOR)
@@ -301,12 +329,20 @@ class FA12(sp.Contract):
     @sp.entry_point
     def setAdministrator(self, params):
         sp.set_type(params, sp.TOption(sp.TAddress))
+
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
         sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
         self.data.administrator = params
 
     @sp.utils.view(sp.TOption(sp.TAddress))
     def getAdministrator(self, params):
         sp.set_type(params, sp.TUnit)
+
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
         sp.result(self.data.administrator)
 
     def is_paused(self):
@@ -315,6 +351,10 @@ class FA12(sp.Contract):
     @sp.entry_point
     def setPause(self, params):
         sp.set_type(params, sp.TBool)
+
+        # Verify that the call did not include XTZ.
+        sp.verify(sp.amount == sp.mutez(0), Errors.ERROR_BAD_AMOUNT)
+
         sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
         self.data.paused = params
 
