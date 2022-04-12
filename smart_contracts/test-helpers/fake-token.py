@@ -6,10 +6,10 @@ class FakeTokenContract(sp.Contract):
     self.init(result = result)
 
   @sp.entry_point
-  def default(self, params):
+  def default(self):
     pass
 
-  @sp.view(sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat))
+  @sp.utils.view(sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat))
   def getPriorBalance(self, params):
     sp.set_type(params, sp.TRecord(
       address = sp.TAddress,

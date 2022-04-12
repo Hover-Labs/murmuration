@@ -6,8 +6,8 @@ import smartpy as sp
 ################################################################
 ################################################################
 
-Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
-Errors = sp.import_script_from_url("file:common/errors.py")
+Addresses = sp.io.import_script_from_url("file:./test-helpers/addresses.py")
+Errors = sp.io.import_script_from_url("file:common/errors.py")
 
 # A community fund for KOL tokens managed by the DAO.
 class CommunityFund(sp.Contract):
@@ -16,7 +16,7 @@ class CommunityFund(sp.Contract):
       tokenContractAddress = Addresses.TOKEN_CONTRACT_ADDRESS,
       governorAddress = Addresses.GOVERNOR_ADDRESS
     ):
-        metadata_data = sp.bytes_of_string('{ "name": "Kolibri DAO Community Fund", "description": "Governance Token Fund for Kolibri DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
+        metadata_data = sp.utils.bytes_of_string('{ "name": "Kolibri DAO Community Fund", "description": "Governance Token Fund for Kolibri DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
         metadata = sp.big_map(
             l = {
@@ -165,10 +165,10 @@ class CommunityFund(sp.Contract):
 # Only run tests if this file is main.
 if __name__ == "__main__":
   
-  Dummy = sp.import_script_from_url("file:./test-helpers/dummy.py")
-  FA12 = sp.import_script_from_url("file:./test-helpers/fa12.py")
-  FA2 = sp.import_script_from_url("file:./test-helpers/fa2.py")
-  Token = sp.import_script_from_url("file:./token.py")
+  Dummy = sp.io.import_script_from_url("file:./test-helpers/dummy.py")
+  FA12 = sp.io.import_script_from_url("file:./test-helpers/fa12.py")
+  FA2 = sp.io.import_script_from_url("file:./test-helpers/fa2.py")
+  Token = sp.io.import_script_from_url("file:./token.py")
 
   ################################################################
   # Set Delegate
@@ -187,9 +187,10 @@ if __name__ == "__main__":
     # WHEN setDelegate is called by someone other than the governor
     # THEN the invocation fails.
     notGovernor = Addresses.NULL_ADDRESS
-    delegate = sp.some(sp.key_hash("tz1abmz7jiCV2GH2u81LRrGgAFFgvQgiDiaf"))
+    delegate = sp.some(Addresses.BAKER_KEY_HASH)
     scenario += fund.setDelegate(delegate).run(
         sender = notGovernor,
+        voting_powers = Addresses.VOTING_POWERS,
         valid = False
     )
 
@@ -204,9 +205,10 @@ if __name__ == "__main__":
     scenario += fund
 
     # WHEN setDelegate is called by the administrator
-    delegate = sp.some(sp.key_hash("tz1abmz7jiCV2GH2u81LRrGgAFFgvQgiDiaf"))
+    delegate = sp.some(Addresses.BAKER_KEY_HASH)
     scenario += fund.setDelegate(delegate).run(
       sender = Addresses.GOVERNOR_ADDRESS,
+      voting_powers = Addresses.VOTING_POWERS,
     )
 
     # THEN the delegate is updated.
@@ -224,7 +226,7 @@ if __name__ == "__main__":
     config = FA2.FA2_config()
     token = FA2.FA2(
       config = config,
-      metadata = sp.metadata_of_url("https://example.com"),      
+      metadata = sp.utils.metadata_of_url("https://example.com"),      
       admin = Addresses.TOKEN_ADMIN_ADDRESS
     )
     scenario += token
@@ -275,7 +277,7 @@ if __name__ == "__main__":
     config = FA2.FA2_config()
     token = FA2.FA2(
       config = config,
-      metadata = sp.metadata_of_url("https://example.com"),      
+      metadata = sp.utils.metadata_of_url("https://example.com"),      
       admin = Addresses.TOKEN_ADMIN_ADDRESS
     )
     scenario += token

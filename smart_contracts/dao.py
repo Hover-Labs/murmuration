@@ -1,14 +1,14 @@
 import smartpy as sp
 
-Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
-Errors = sp.import_script_from_url("file:common/errors.py")
-HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
-Poll = sp.import_script_from_url("file:common/poll.py")
-PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
-Proposal = sp.import_script_from_url("file:common/proposal.py")
-QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
-VoteRecord = sp.import_script_from_url("file:common/vote-record.py")
-VoteValue = sp.import_script_from_url("file:common/vote-value.py")
+Addresses = sp.io.import_script_from_url("file:test-helpers/addresses.py")
+Errors = sp.io.import_script_from_url("file:common/errors.py")
+HistoricalOutcomes = sp.io.import_script_from_url("file:common/historical-outcomes.py")
+Poll = sp.io.import_script_from_url("file:common/poll.py")
+PollOutcomes = sp.io.import_script_from_url("file:common/poll-outcomes.py")
+Proposal = sp.io.import_script_from_url("file:common/proposal.py")
+QuorumCap = sp.io.import_script_from_url("file:common/quorum-cap.py")
+VoteRecord = sp.io.import_script_from_url("file:common/vote-record.py")
+VoteValue = sp.io.import_script_from_url("file:common/vote-value.py")
 
 ################################################################
 ################################################################
@@ -136,7 +136,7 @@ class DaoContract(sp.Contract):
     votingState = sp.none,
     outcomes = sp.big_map(l = {}, tkey = sp.TNat, tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE),
   ):
-    metadata_data = sp.bytes_of_string('{ "name": "Kolibri Governance DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
+    metadata_data = sp.utils.bytes_of_string('{ "name": "Kolibri Governance DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
     metadata = sp.big_map(
       l = {
@@ -515,9 +515,9 @@ class DaoContract(sp.Contract):
 # Only run tests if this file is main.
 if __name__ == "__main__":
 
-  FakeToken = sp.import_script_from_url("file:test-helpers/fake-token.py")
-  Store = sp.import_script_from_url("file:test-helpers/store.py")
-  Token = sp.import_script_from_url("file:token.py")
+  FakeToken = sp.io.import_script_from_url("file:test-helpers/fake-token.py")
+  Store = sp.io.import_script_from_url("file:test-helpers/store.py")
+  Token = sp.io.import_script_from_url("file:token.py")
 
   ################################################################
   # propose
@@ -3029,7 +3029,7 @@ if __name__ == "__main__":
 
     # WHEN the DAO contract tries to rotate the parameters to have a min yay votes
     # for escrow return that is above 100.
-    newminYayVotesPercentForEscrowReturn = sp.nat(105.)
+    newminYayVotesPercentForEscrowReturn = sp.nat(105)
 
     newEscrowAmount = sp.nat(12)
     newVoteDelayBlocks = sp.nat(2)

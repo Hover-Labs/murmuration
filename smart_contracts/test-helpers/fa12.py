@@ -33,15 +33,15 @@ class FA12_core(sp.Contract):
         sp.if ~ self.data.balances.contains(address):
             self.data.balances[address] = sp.record(balance = 0, approvals = {})
 
-    @sp.view(sp.TNat)
+    @sp.utils.view(sp.TNat)
     def getBalance(self, params):
         sp.result(self.data.balances[params].balance)
 
-    @sp.view(sp.TNat)
+    @sp.utils.view(sp.TNat)
     def getAllowance(self, params):
         sp.result(self.data.balances[params.owner].approvals[params.spender])
 
-    @sp.view(sp.TNat)
+    @sp.utils.view(sp.TNat)
     def getTotalSupply(self, params):
         sp.set_type(params, sp.TUnit)
         sp.result(self.data.totalSupply)
@@ -81,7 +81,7 @@ class FA12_administrator(FA12_core):
         sp.verify(self.is_administrator(sp.sender))
         self.data.administrator = params
 
-    @sp.view(sp.TAddress)
+    @sp.utils.view(sp.TAddress)
     def getAdministrator(self, params):
         sp.set_type(params, sp.TUnit)
         sp.result(self.data.administrator)

@@ -1,8 +1,8 @@
 import smartpy as sp
 
-Proposal = sp.import_script_from_url("file:common/proposal.py")
-QuorumCap = sp.import_script_from_url("file:common/quorum-cap.py")
-VoteRecord = sp.import_script_from_url("file:common/vote-record.py")
+Proposal = sp.io.import_script_from_url("file:common/proposal.py")
+QuorumCap = sp.io.import_script_from_url("file:common/quorum-cap.py")
+VoteRecord = sp.io.import_script_from_url("file:common/vote-record.py")
 
 # A poll for a proposal.
 # Params:
