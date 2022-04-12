@@ -6,9 +6,9 @@ import smartpy as sp
 ################################################################
 ################################################################
 
-Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
-Errors = sp.import_script_from_url("file:common/errors.py")
-Proposal = sp.import_script_from_url("file:common/proposal.py")
+Addresses = sp.io.import_script_from_url("file:./test-helpers/addresses.py")
+Errors = sp.io.import_script_from_url("file:common/errors.py")
+Proposal = sp.io.import_script_from_url("file:common/proposal.py")
 
 # A simple vesting contract.
 class VestingVault(sp.Contract):
@@ -27,7 +27,7 @@ class VestingVault(sp.Contract):
       # The dao address.
       daoContractAddress = Addresses.DAO_ADDRESS
     ):
-        metadata_data = sp.bytes_of_string('{"name": "kDAO Vesting Contract", "description": "kDAO Vesting Contract", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
+        metadata_data = sp.utils.bytes_of_string('{"name": "kDAO Vesting Contract", "description": "kDAO Vesting Contract", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
         metadata = sp.big_map(
             l = {
@@ -310,15 +310,15 @@ class VestingVault(sp.Contract):
 # Only run tests if this file is main.
 if __name__ == "__main__":
 
-  Dao = sp.import_script_from_url("file:./dao.py")
-  Dummy = sp.import_script_from_url("file:./test-helpers/dummy.py")
-  FA12 = sp.import_script_from_url("file:./test-helpers/fa12.py")
-  FA2 = sp.import_script_from_url("file:./test-helpers/fa2.py")
-  HistoricalOutcomes = sp.import_script_from_url("file:common/historical-outcomes.py")
-  PollOutcomes = sp.import_script_from_url("file:common/poll-outcomes.py")
-  Store = sp.import_script_from_url("file:test-helpers/store.py")
-  Token = sp.import_script_from_url("file:./token.py")
-  VoteValue = sp.import_script_from_url("file:common/vote-value.py")
+  Dao = sp.io.import_script_from_url("file:./dao.py")
+  Dummy = sp.io.import_script_from_url("file:./test-helpers/dummy.py")
+  FA12 = sp.io.import_script_from_url("file:./test-helpers/fa12.py")
+  FA2 = sp.io.import_script_from_url("file:./test-helpers/fa2.py")
+  HistoricalOutcomes = sp.io.import_script_from_url("file:common/historical-outcomes.py")
+  PollOutcomes = sp.io.import_script_from_url("file:common/poll-outcomes.py")
+  Store = sp.io.import_script_from_url("file:test-helpers/store.py")
+  Token = sp.io.import_script_from_url("file:./token.py")
+  VoteValue = sp.io.import_script_from_url("file:common/vote-value.py")
 
   ################################################################
   # rescueFA2
@@ -332,7 +332,7 @@ if __name__ == "__main__":
     config = FA2.FA2_config()
     vestingToken = FA2.FA2(
       config = config,
-      metadata = sp.metadata_of_url("https://example.com"),      
+      metadata = sp.utils.metadata_of_url("https://example.com"),      
       admin = Addresses.TOKEN_ADMIN_ADDRESS
     )
     scenario += vestingToken
@@ -348,7 +348,7 @@ if __name__ == "__main__":
     # AND an extra token contract which is unrelated
     extraToken = FA2.FA2(
       config = config,
-      metadata = sp.metadata_of_url("https://example.com"),      
+      metadata = sp.utils.metadata_of_url("https://example.com"),      
       admin = Addresses.TOKEN_ADMIN_ADDRESS
     )
     scenario += extraToken
@@ -393,7 +393,7 @@ if __name__ == "__main__":
     config = FA2.FA2_config()
     vestingToken = FA2.FA2(
       config = config,
-      metadata = sp.metadata_of_url("https://example.com"),      
+      metadata = sp.utils.metadata_of_url("https://example.com"),      
       admin = Addresses.TOKEN_ADMIN_ADDRESS
     )
     scenario += vestingToken
@@ -409,7 +409,7 @@ if __name__ == "__main__":
     # AND an extra token contract which is unrelated
     extraToken = FA2.FA2(
       config = config,
-      metadata = sp.metadata_of_url("https://example.com"),      
+      metadata = sp.utils.metadata_of_url("https://example.com"),      
       admin = Addresses.TOKEN_ADMIN_ADDRESS
     )
     scenario += extraToken
@@ -452,7 +452,7 @@ if __name__ == "__main__":
     config = FA2.FA2_config()
     vestingToken = FA2.FA2(
       config = config,
-      metadata = sp.metadata_of_url("https://example.com"),      
+      metadata = sp.utils.metadata_of_url("https://example.com"),      
       admin = Addresses.TOKEN_ADMIN_ADDRESS
     )
     scenario += vestingToken
@@ -468,7 +468,7 @@ if __name__ == "__main__":
     # AND an extra token contract which is unrelated
     extraToken = FA2.FA2(
       config = config,
-      metadata = sp.metadata_of_url("https://example.com"),      
+      metadata = sp.utils.metadata_of_url("https://example.com"),      
       admin = Addresses.TOKEN_ADMIN_ADDRESS
     )
     scenario += extraToken

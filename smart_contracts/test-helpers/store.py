@@ -6,7 +6,7 @@ class StoreValueContract(sp.Contract):
     self.init(storedValue = value, admin=admin)
 
   @sp.entry_point
-  def default(self, params):
+  def default(self):
     pass
 
   @sp.entry_point

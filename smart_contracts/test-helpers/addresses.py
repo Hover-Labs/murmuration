@@ -37,3 +37,11 @@ CHARLIE_ADDRESS =sp.address("tz1R6Ej25VSerE3MkSoEEeBjKHCDTFbpKuSX")
 
 # An address which is never used. This is a `null` value for addresses.
 NULL_ADDRESS = sp.address("tz1bTpviNnyx2PXsNmGpCQTMQsGoYordkUoA")
+
+# An address of a Baker
+BAKER_PUBLIC_KEY_HASH = "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9"
+BAKER_ADDRESS = sp.address(BAKER_PUBLIC_KEY_HASH)
+BAKER_KEY_HASH = sp.key_hash(BAKER_PUBLIC_KEY_HASH)
+VOTING_POWERS = {
+  BAKER_KEY_HASH: 8000,
+}

@@ -12,7 +12,7 @@ code
       {
         SWAP;       # @storage : @parameter%drip
         # == drip ==
-        # sp.verify(params.numberOfTokens <= self.data.maxTokensPerDrip, message = 'TOO_MANY_TOKENS') # @storage : @parameter%drip
+        # sp.verify(params.numberOfTokens <= self.data.maxTokensPerDrip, 'TOO_MANY_TOKENS') # @storage : @parameter%drip
         DUP;        # @storage : @storage : @parameter%drip
         DUG 2;      # @storage : @parameter%drip : @storage
         CAR;        # nat : @parameter%drip : @storage
@@ -32,18 +32,17 @@ code
         DUP 3;      # @storage : list operation : @parameter%drip : @storage
         GET 4;      # address : list operation : @parameter%drip : @storage
         CONTRACT %transfer (pair (address %from) (pair (address %to) (nat %value))); # option (contract (pair (address %from) (pair (address %to) (nat %value)))) : list operation : @parameter%drip : @storage
-        IF_SOME
-          {}
+        IF_NONE
           {
             PUSH int 53; # int : list operation : @parameter%drip : @storage
             FAILWITH;   # FAILED
-          }; # @some : list operation : @parameter%drip : @storage
+          }
+          {}; # @some : list operation : @parameter%drip : @storage
         PUSH mutez 0; # mutez : @some : list operation : @parameter%drip : @storage
         DIG 3;      # @parameter%drip : mutez : @some : list operation : @storage
-        SENDER;     # address : @parameter%drip : mutez : @some : list operation : @storage
-        PAIR %to %value; # pair (address %to) (@parameter%drip %value) : mutez : @some : list operation : @storage
-        SELF_ADDRESS; # address : pair (address %to) (@parameter%drip %value) : mutez : @some : list operation : @storage
-        PAIR %from; # pair (address %from) (pair (address %to) (@parameter%drip %value)) : mutez : @some : list operation : @storage
+        SENDER;     # @sender : @parameter%drip : mutez : @some : list operation : @storage
+        SELF_ADDRESS; # @self : @sender : @parameter%drip : mutez : @some : list operation : @storage
+        PAIR 3;     # pair @self (pair @sender @parameter%drip) : mutez : @some : list operation : @storage
         TRANSFER_TOKENS; # operation : list operation : @storage
         CONS;       # list operation : @storage
       }; # list operation : @storage

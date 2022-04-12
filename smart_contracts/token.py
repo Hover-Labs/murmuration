@@ -9,8 +9,8 @@
 
 import smartpy as sp
 
-Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
-Errors = sp.import_script_from_url("file:common/errors.py")
+Addresses = sp.io.import_script_from_url("file:test-helpers/addresses.py")
+Errors = sp.io.import_script_from_url("file:common/errors.py")
 
 # CHANGED: Compress the contract into a single entity, rather than using inheritance.
 class FA12(sp.Contract):
@@ -23,10 +23,10 @@ class FA12(sp.Contract):
         token_id = sp.nat(0)
         kol_metadata = sp.map(
             l = {
-                "name": sp.bytes_of_string('Kolibri DAO Token'),
+                "name": sp.utils.bytes_of_string('Kolibri DAO Token'),
                 "decimals": sp.bytes('0x3138'), # 18
-                "symbol": sp.bytes_of_string('kDAO'),
-                "icon": sp.bytes_of_string('https://kolibri-data.s3.amazonaws.com/kdao-logo.png'),
+                "symbol": sp.utils.bytes_of_string('kDAO'),
+                "icon": sp.utils.bytes_of_string('https://kolibri-data.s3.amazonaws.com/kdao-logo.png'),
             },
             tkey = sp.TString,
             tvalue = sp.TBytes
@@ -39,7 +39,7 @@ class FA12(sp.Contract):
           tvalue = sp.TRecord(token_id = sp.TNat, token_info = sp.TMap(sp.TString, sp.TBytes))
         )
         
-        metadata_data = sp.bytes_of_string('{ "name": "kDAO Token", "description": "The FA1.2 Governance Token For Kolibri", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance", "interfaces": [ "TZIP-007-2021-01-29"] }')
+        metadata_data = sp.utils.bytes_of_string('{ "name": "kDAO Token", "description": "The FA1.2 Governance Token For Kolibri", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance", "interfaces": [ "TZIP-007-2021-01-29"] }')
 
         metadata = sp.big_map(
             l = {
@@ -105,7 +105,7 @@ class FA12(sp.Contract):
         self.data.token_metadata[0] = params
         
     # CHANGED: Add method to write checkpoints.
-    @sp.sub_entry_point
+    @sp.private_lambda(with_storage="read-write", with_operations=True, wrap_call=True)
     def writeCheckpoint(self, params):
         sp.set_type(params, sp.TRecord(checkpointedAddress = sp.TAddress, numCheckpoints = sp.TNat, newBalance = sp.TNat).layout(("checkpointedAddress", ("numCheckpoints", "newBalance"))))
 
@@ -124,7 +124,7 @@ class FA12(sp.Contract):
                     self.data.numCheckpoints[params.checkpointedAddress] = params.numCheckpoints + 1
       
     # CHANGED: Add view to get balance from checkpoints
-    @sp.view(sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat))
+    @sp.utils.view(sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat))
     def getPriorBalance(self, params):
         sp.set_type(params, sp.TRecord(
             address = sp.TAddress,
@@ -245,21 +245,21 @@ class FA12(sp.Contract):
             self.data.balances[address] = 0
             self.data.approvals[address] = {}
 
-    @sp.view(sp.TNat)
+    @sp.utils.view(sp.TNat)
     def getBalance(self, params):
         # CHANGED: Add address if needed.
         self.addAddressIfNecessary(params)
 
         sp.result(self.data.balances[params])
 
-    @sp.view(sp.TNat)
+    @sp.utils.view(sp.TNat)
     def getAllowance(self, params):
         # CHANGED: Add address if needed.
         self.addAddressIfNecessary(params.owner)
 
         sp.result(self.data.approvals[params.owner].get(params.spender, sp.nat(0)))
 
-    @sp.view(sp.TNat)
+    @sp.utils.view(sp.TNat)
     def getTotalSupply(self, params):
         sp.set_type(params, sp.TUnit)
         sp.result(self.data.totalSupply)
@@ -304,7 +304,7 @@ class FA12(sp.Contract):
         sp.verify(self.is_administrator(sp.sender), Errors.ERROR_NOT_ADMINISTRATOR)
         self.data.administrator = params
 
-    @sp.view(sp.TOption(sp.TAddress))
+    @sp.utils.view(sp.TOption(sp.TAddress))
     def getAdministrator(self, params):
         sp.set_type(params, sp.TUnit)
         sp.result(self.data.administrator)
@@ -330,7 +330,7 @@ class Viewer(sp.Contract):
 # Only run tests if this file is main.
 if __name__ == "__main__":
 
-    Addresses = sp.import_script_from_url("file:./test-helpers/addresses.py")
+    Addresses = sp.io.import_script_from_url("file:./test-helpers/addresses.py")
 
     ################################################################
     # transfer
@@ -408,7 +408,7 @@ if __name__ == "__main__":
                     address = Addresses.ALICE_ADDRESS,
                     level = level
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -427,7 +427,7 @@ if __name__ == "__main__":
 
         # AND a viewer contract.
         viewer = Viewer(
-            t = sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
+            sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
         )
         scenario += viewer
 
@@ -440,7 +440,7 @@ if __name__ == "__main__":
                     address = Addresses.ALICE_ADDRESS,
                     level = requestLevel
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = currentLevel,
@@ -463,7 +463,7 @@ if __name__ == "__main__":
 
         # AND a viewer contract.
         viewer = Viewer(
-            t = sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
+            sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
         )
         scenario += viewer
 
@@ -488,7 +488,7 @@ if __name__ == "__main__":
                     address = Addresses.ALICE_ADDRESS,
                     level = requestLevel
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = currentLevel,
@@ -511,7 +511,7 @@ if __name__ == "__main__":
 
         # AND a viewer contract.
         viewer = Viewer(
-            t = sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
+            sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
         )
         scenario += viewer
 
@@ -537,7 +537,7 @@ if __name__ == "__main__":
                     address = Addresses.ALICE_ADDRESS,
                     level = requestLevel
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = currentLevel,
@@ -563,7 +563,7 @@ if __name__ == "__main__":
 
         # AND a viewer contract.
         viewer = Viewer(
-            t = sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
+            sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
         )
         scenario += viewer
 
@@ -649,7 +649,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 1
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -666,7 +666,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 2
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -683,7 +683,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 3
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -700,7 +700,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 4
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -717,7 +717,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 5
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -734,7 +734,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 6
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -751,7 +751,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 7
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -768,7 +768,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 8
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -785,7 +785,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 9
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -802,7 +802,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 10
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -819,7 +819,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 11
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -843,7 +843,7 @@ if __name__ == "__main__":
 
         # AND a viewer contract.
         viewer = Viewer(
-            t = sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
+            sp.TRecord(result = sp.TNat, address = sp.TAddress, level = sp.TNat)
         )
         scenario += viewer
 
@@ -919,7 +919,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 1
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -936,7 +936,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 2
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -953,7 +953,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 3
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -970,7 +970,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 4
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -987,7 +987,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 5
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -1004,7 +1004,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 6
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -1021,7 +1021,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 7
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -1038,7 +1038,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 8
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -1055,7 +1055,7 @@ if __name__ == "__main__":
                     address = Addresses.BOB_ADDRESS,
                     level = 9
                 ),
-                viewer.typed
+                viewer.typed.target
             )
         ).run(
             level = level,
@@ -1733,26 +1733,26 @@ if __name__ == "__main__":
             scenario.h2("Balance")
             view_balance = Viewer(sp.TNat)
             scenario += view_balance
-            scenario += c1.getBalance((alice.address, view_balance.typed))
+            scenario += c1.getBalance((alice.address, view_balance.typed.target))
             scenario.verify_equal(view_balance.data.last, sp.some(8))
 
             scenario.h2("Administrator")
             view_administrator = Viewer(sp.TOption(sp.TAddress))
             scenario += view_administrator
-            scenario += c1.getAdministrator((sp.unit, view_administrator.typed))
+            scenario += c1.getAdministrator((sp.unit, view_administrator.typed.target))
             scenario.verify_equal(view_administrator.data.last, sp.some(sp.some(admin.address)))
 
             scenario.h2("Total Supply")
             view_totalSupply = Viewer(sp.TNat)
             scenario += view_totalSupply
-            scenario += c1.getTotalSupply((sp.unit, view_totalSupply.typed))
+            scenario += c1.getTotalSupply((sp.unit, view_totalSupply.typed.target))
             # CHANGED: Add 1 because burning test was removed.
             scenario.verify_equal(view_totalSupply.data.last, sp.some(18))
 
             scenario.h2("Allowance")
             view_allowance = Viewer(sp.TNat)
             scenario += view_allowance
-            scenario += c1.getAllowance((sp.record(owner = alice.address, spender = bob.address), view_allowance.typed))
+            scenario += c1.getAllowance((sp.record(owner = alice.address, spender = bob.address), view_allowance.typed.target))
             scenario.verify_equal(view_allowance.data.last, sp.some(1))
             
     sp.add_compilation_target("token", FA12())

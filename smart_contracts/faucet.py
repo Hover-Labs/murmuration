@@ -6,8 +6,8 @@ import smartpy as sp
 ################################################################
 ################################################################
 
-Addresses = sp.import_script_from_url("file:test-helpers/addresses.py")
-Errors = sp.import_script_from_url("file:common/errors.py")
+Addresses = sp.io.import_script_from_url("file:test-helpers/addresses.py")
+Errors = sp.io.import_script_from_url("file:common/errors.py")
 
 # A faucet contract for KOL Governance Tokens
 class Faucet(sp.Contract):
@@ -16,7 +16,7 @@ class Faucet(sp.Contract):
       tokenContractAddress = Addresses.TOKEN_CONTRACT_ADDRESS,
       maxTokensPerDrip = 10_000_000_000_000_000_000  
     ):
-        metadata_data = sp.bytes_of_string('{ "name": "kDAO Token Faucet", "description": "Governance Token Faucet for Kolibri DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
+        metadata_data = sp.utils.bytes_of_string('{ "name": "kDAO Token Faucet", "description": "Governance Token Faucet for Kolibri DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
         metadata = sp.big_map(
             l = {
@@ -67,7 +67,7 @@ class Faucet(sp.Contract):
 # Only run tests if this file is main.
 if __name__ == "__main__":
 
-  Token = sp.import_script_from_url("file:token.py")
+  Token = sp.io.import_script_from_url("file:token.py")
 
   ################################################################
   # drip

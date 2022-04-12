@@ -569,9 +569,9 @@ class FA2_token_metadata(FA2_core):
         "Helper function to build metadata JSON bytes values."
         return (sp.map(l = {
             # Remember that michelson wants map already in ordered
-            "decimals" : sp.bytes_of_string("%d" % decimals),
-            "name" : sp.bytes_of_string(name),
-            "symbol" : sp.bytes_of_string(symbol)
+            "decimals" : sp.utils.bytes_of_string("%d" % decimals),
+            "name" : sp.utils.bytes_of_string(name),
+            "symbol" : sp.utils.bytes_of_string(symbol)
         }))
 
 
@@ -744,7 +744,7 @@ if __name__ == "__main__":
           scenario.h2("Accounts")
           scenario.show([admin, alice, bob])
           c1 = FA2(config = config,
-                  metadata = sp.metadata_of_url("https://example.com"),
+                  metadata = sp.utils.metadata_of_url("https://example.com"),
                   admin = admin.address)
           scenario += c1
           if config.non_fungible:
@@ -1106,5 +1106,5 @@ if __name__ == "__main__":
                   , is_default = not sp.in_browser)
 
       sp.add_compilation_target("FA2_comp", FA2(config = environment_config(),
-                                metadata = sp.metadata_of_url("https://example.com"),
+                                metadata = sp.utils.metadata_of_url("https://example.com"),
                                 admin = sp.address("tz1M9CMEtsXm3QxA7FmMU2Qh7xzsuGXVbcDr")))

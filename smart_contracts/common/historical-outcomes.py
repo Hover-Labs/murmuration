@@ -1,6 +1,6 @@
 import smartpy as sp
 
-Poll = sp.import_script_from_url("file:common/poll.py")
+Poll = sp.io.import_script_from_url("file:common/poll.py")
 
 # A historical result of a vote.
 # Params:
