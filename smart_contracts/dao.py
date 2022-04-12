@@ -3029,7 +3029,7 @@ if __name__ == "__main__":
 
     # WHEN the DAO contract tries to rotate the parameters to have a min yay votes
     # for escrow return that is above 100.
-    newminYayVotesPercentForEscrowReturn = sp.nat(105.)
+    newminYayVotesPercentForEscrowReturn = sp.nat(105)
 
     newEscrowAmount = sp.nat(12)
     newVoteDelayBlocks = sp.nat(2)
