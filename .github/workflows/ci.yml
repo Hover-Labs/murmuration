@@ -15,7 +15,7 @@ jobs:
     - uses: actions/setup-python@v2
     - name: "Install SmartPy"
       run: |
-        curl -s https://smartpy.io/releases/20210326-d2f24290eef00fe8cc3d482f052165a71a635fa3/cli/install.sh | sh -s -- local-install ~/smartpy-cli
+        curl -s https://smartpy.io/releases/20220405-79018120fafa35774b674ec4de0aebd19409219d/cli/install.sh | sh -s -- local-install ~/smartpy-cli
     - name: "Build and Test Smart Contracts"
       run: |
         cd smart_contracts
