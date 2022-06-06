@@ -3,7 +3,7 @@ import { DeployParams, deploy } from './deploy-murmuration'
 import { scaleTokenAmount } from './utils'
 
 const params: DeployParams = {
-  nodeAddress: 'https://rpctest.tzbeta.net',
+  nodeAddress: 'https://ithacanet.smartpy.io',
 
   vestingContracts: [
     {

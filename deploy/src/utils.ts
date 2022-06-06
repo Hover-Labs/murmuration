@@ -111,7 +111,7 @@ export async function sendOperation(
     return operationHash
   } catch (e) {
     console.log('Caught exception, retrying...')
-    console.log(e.message)
+    console.log(e)
     await Utils.sleep(OPERATION_DELAY_SECS)
 
     return sendOperation(
@@ -188,7 +188,7 @@ export async function deployContract(
     }
   } catch (e) {
     console.log('Caught exception, retrying...')
-    console.log(e.message)
+    console.log(e)
     await Utils.sleep(OPERATION_DELAY_SECS)
 
     return deployContract(
