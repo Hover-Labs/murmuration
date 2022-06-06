@@ -182,7 +182,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
 
   console.log('>>> [1/4] Deploying Token Contract')
   counter++
-  const tokenContractStorage = `(Pair (Pair (Pair (Some "${keystore.publicKeyHash}") {}) (Pair {} {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20226b44414f20546f6b656e222c20226465736372697074696f6e223a2022546865204641312e3220476f7665726e616e636520546f6b656e20466f72204b6f6c69627269222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e6365222c2022696e7465726661636573223a205b2022545a49502d3030372d323032312d30312d3239225d207d})) (Pair (Pair False {}) (Pair False (Pair {Elt 0 (Pair 0 {Elt "decimals" 0x3138; Elt "icon" 0x2068747470733a2f2f6b6f6c696272692d646174612e73332e616d617a6f6e6177732e636f6d2f6c6f676f2e706e67; Elt "name" 0x4b6f6c696272692044414f20546f6b656e; Elt "symbol" 0x6b44414f})} 0))))`
+  const tokenContractStorage = `(Pair (Pair (Pair (Some "${keystore.publicKeyHash}") {}) (Pair {} (Pair {} {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b20226e616d65223a20226b44414f20546f6b656e222c20226465736372697074696f6e223a2022546865204641312e3220476f7665726e616e636520546f6b656e20466f72204b6f6c69627269222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e6365222c2022696e7465726661636573223a205b2022545a49502d3030372d323032312d30312d3239225d207d}))) (Pair (Pair False {}) (Pair False (Pair {Elt 0 (Pair 0 {Elt "decimals" 0x3138; Elt "icon" 0x68747470733a2f2f6b6f6c696272692d646174612e73332e616d617a6f6e6177732e636f6d2f6b64616f2d6c6f676f2e706e67; Elt "name" 0x4b6f6c696272692044414f20546f6b656e; Elt "symbol" 0x6b44414f})} 0))))`
   const tokenDeployResult = await deployContract(
     tokenContract,
     tokenContractStorage,
@@ -234,7 +234,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
   console.log('------------------------------------------------------')
   console.log('')
 
-  console.log('>>> [1/2] Minting Tokens')
+  console.log('>>> [1/3] Minting Tokens')
   counter++
   const mintParam = `Pair "${keystore.publicKeyHash
     }" ${CONFIG.TOKENS_TO_MINT.toFixed()}`
@@ -248,7 +248,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
   )
   console.log('')
 
-  console.log('>>> [2/2] Locking Minting')
+  console.log('>>> [2/3] Locking Minting')
   counter++
   await sendOperation(
     tokenDeployResult.contractAddress,
@@ -260,30 +260,31 @@ export const deploy = async (params: DeployParams): Promise<void> => {
   )
   console.log('')
 
-  console.log('------------------------------------------------------')
-  console.log('>> Minting Complete')
-  console.log('>> Wiring')
-  console.log('------------------------------------------------------')
-  console.log('')
-
-  console.log('>>> [1/2] Setting Governor for Community Fund')
+  console.log('>>> [3/3] Revoking Administration Rights')
   counter++
   await sendOperation(
-    communityFundDeployResult.contractAddress,
-    'setGovernorContract',
-    `"${keystore.publicKeyHash}"`,
+    tokenDeployResult.contractAddress,
+    'setAdministrator',
+    'None',
     keystore,
     counter,
     params.nodeAddress,
   )
   console.log('')
 
-  console.log('>>> [2/2] Setting Governor for DAO')
+
+  console.log('------------------------------------------------------')
+  console.log('>> Minting Complete')
+  console.log('>> Wiring')
+  console.log('------------------------------------------------------')
+  console.log('')
+
+  console.log('>>> [1/1] Setting Governor for Community Fund')
   counter++
   await sendOperation(
-    tokenDeployResult.contractAddress,
-    'setAdministrator',
-    `Some "${params.governorAddress}"`,
+    communityFundDeployResult.contractAddress,
+    'setGovernorContract',
+    `"${daoDeployResult.contractAddress}"`,
     keystore,
     counter,
     params.nodeAddress,
@@ -306,7 +307,7 @@ export const deploy = async (params: DeployParams): Promise<void> => {
       `>>> [${++step}/${steps}] Deploying Vesting Contract for ${vestingContract.owner
       }`,
     )
-    const vestingVaultStorage =  `(Pair (Pair (Pair ${vestingContract.amountPerBlock.toFixed()}      0) (Pair "${daoDeployResult.contractAddress}"               "${keystore.publicKeyHash}")) (Pair (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b226e616d65223a20226b44414f2056657374696e6720436f6e7472616374222c20226465736372697074696f6e223a20226b44414f2056657374696e6720436f6e7472616374222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d} "${vestingContract.owner}") (Pair ${vestingContract.vestingStartBlock.toFixed()} "${tokenDeployResult.contractAddress}")))`                                 
+    const vestingVaultStorage = `(Pair (Pair (Pair ${vestingContract.amountPerBlock.toFixed()}      0) (Pair "${daoDeployResult.contractAddress}"               "${keystore.publicKeyHash}")) (Pair (Pair {Elt "" 0x74657a6f732d73746f726167653a64617461; Elt "data" 0x7b226e616d65223a20226b44414f2056657374696e6720436f6e7472616374222c20226465736372697074696f6e223a20226b44414f2056657374696e6720436f6e7472616374222c2022617574686f7273223a205b22486f766572204c616273203c68656c6c6f40686f7665722e656e67696e656572696e673e225d2c2022686f6d6570616765223a20202268747470733a2f2f6b6f6c696272692e66696e616e636522207d} "${vestingContract.owner}") (Pair ${vestingContract.vestingStartBlock.toFixed()} "${tokenDeployResult.contractAddress}")))`
     const vestingVaultDeployResult = await deployContract(
       vestingVaultContract,
       vestingVaultStorage,
