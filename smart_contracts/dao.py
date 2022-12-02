@@ -135,6 +135,10 @@ class DaoContract(sp.Contract):
     state = STATE_MACHINE_IDLE,
     votingState = sp.none,
     outcomes = sp.big_map(l = {}, tkey = sp.TNat, tvalue = HistoricalOutcomes.HISTORICAL_OUTCOME_TYPE),
+    # Auxilary token contract(s) - use token-mint-burn.py.
+    # 1 Aux Token = 1 kDAO = 1 Vote (meaning you can't have LP positions externally - is this a big deal?) 
+    # Note that this could probably be a list and then updatable via goverance...
+    auxTokenContract = Addresses.TOKEN_CONTRACT_ADDRESS,
   ):
     metadata_data = sp.bytes_of_string('{ "name": "Kolibri Governance DAO", "authors": ["Hover Labs <hello@hover.engineering>"], "homepage":  "https://kolibri.finance" }')
 
@@ -164,8 +168,9 @@ class DaoContract(sp.Contract):
     )
 
     self.init(
-      # The address of the governance token contract.
+      # The address of the governance token contract(s)
       tokenContractAddress = tokenContractAddress,
+      auxTokenContract = tokenContractAddress,
 
       # The address of the community fund. 
       communityFundAddress = communityFundAddress,
@@ -322,6 +327,8 @@ class DaoContract(sp.Contract):
   # Voting
   ################################################################
 
+  # FYI this call out / call back pattern is because on-chain views didn't exist when I wrote this.
+  # We can simplify if a bunch if we don't need to support kDAO.
   @sp.entry_point
   def vote(self, voteValue):
     sp.set_type(voteValue, sp.TNat)
@@ -391,6 +398,23 @@ class DaoContract(sp.Contract):
     poll = sp.local('poll', self.data.poll.open_some())
     sp.verify(sp.level <= self.data.poll.open_some().votingEndBlock, Errors.ERROR_VOTING_FINISHED)
 
+    # Call our aux contracts. We can use onchain views - thank goodness.
+    auxTokenVotes = sp.view(
+            "getPriceView", 
+            self.data.auxTokenContract,
+            sp.record(
+              address = sp.sender,
+              level = self.data.poll.open_some().votingStartBlock,
+            ),
+            t = sp.TRecord(
+                                result = sp.TNat, 
+                                address = sp.TAddress, 
+                                level = sp.TNat
+                            )
+        ).open_some("Bad view address")
+    totalVotes = returnedDataa.result + auxTokenVotes
+
+
     # Retrieve old poll for mutation. 
     newPoll = sp.local('newPoll', self.data.poll.open_some())
 
@@ -398,19 +422,19 @@ class DaoContract(sp.Contract):
     newPoll.value.voters[savedState.address] = sp.record(
       voteValue = savedState.voteValue,
       level = sp.level,
-      votes = returnedData.result
+      votes = totalVotes
     )
-    newPoll.value.totalVotes += returnedData.result
+    newPoll.value.totalVotes += totalVotes
 
     # Increment the given vote value. Fail if none matched.
     sp.if savedState.voteValue == VoteValue.YAY:
-      newPoll.value.yayVotes += returnedData.result
+      newPoll.value.yayVotes += totalVotes
     sp.else:
       sp.if savedState.voteValue == VoteValue.NAY:
-        newPoll.value.nayVotes += returnedData.result
+        newPoll.value.nayVotes += totalVotes
       sp.else:
         sp.if savedState.voteValue == VoteValue.ABSTAIN:
-          newPoll.value.abstainVotes += returnedData.result
+          newPoll.value.abstainVotes += totalVotes
         sp.else:
           sp.failwith(Errors.ERROR_BAD_VOTE_VALUE)
 
